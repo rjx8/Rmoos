@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>جدول ريماس | تأسيس وتجميعات القدرات</title>
+  <title>جدول</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,48 +34,62 @@
       overflow-x: hidden;
       transition: background-color 0.2s, color 0.2s;
     }
+    
+    /* إصلاح مشكلة انضغاط الجدول */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      vertical-align: middle;
+      line-height: 1.6;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+
     .row-complete { background-color: #F2F9F5 !important; }
     .row-flash { background-color: #E7E5E4 !important; }
     input[type="checkbox"] { accent-color: #3F6251; }
     html.dark input[type="checkbox"] { accent-color: #8FCBA5; }
 
-    table {
-      width: 100%;
-      table-layout: fixed;
-      border-collapse: collapse;
-    }
-    th, td {
-      vertical-align: middle;
-      line-height: 1.65;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
+    /* أنيميشن صور القطط */
     @keyframes burstOut {
       0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(0deg); }
-      22% { opacity: 1; transform: translate(calc(-50% + var(--tx) * 0.65), calc(-50% + var(--ty) * 0.65)) scale(1.08) rotate(calc(var(--rot) * 0.7)); }
-      75% { opacity: 1; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.96) rotate(var(--rot)); }
-      100% { opacity: 0; transform: translate(calc(-50% + var(--tx) * 1.15), calc(-50% + var(--ty) * 1.15 - 18px)) scale(0.45) rotate(var(--rot)); }
+      22% { opacity: 1; transform: translate(calc(-50% + var(--tx) * 0.65), calc(-50% + var(--ty) * 0.65)) scale(1.1) rotate(calc(var(--rot) * 0.7)); }
+      75% { opacity: 1; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.9) rotate(var(--rot)); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--tx) * 1.2), calc(-50% + var(--ty) * 1.2 - 20px)) scale(0.4) rotate(var(--rot)); }
     }
-    .cat-burst-particle {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      object-fit: cover;
-      border-radius: 14px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
-      animation: burstOut var(--dur, 1150ms) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
-    }
+    
+    /* سر حيلة الشفافية للصور JPEG */
     .cat-burst-transparent {
       position: fixed;
       pointer-events: none;
       z-index: 9999;
       object-fit: contain;
-      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
-      animation: burstOut var(--dur, 1150ms) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
+      mix-blend-mode: multiply; /* يخفي الخلفية البيضاء */
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+      animation: burstOut var(--dur, 1000ms) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
     }
+
+    /* أنيميشن الطراطيع (Sparkles) */
+    @keyframes sparkleOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      50% { opacity: 1; transform: translate(calc(-50% + var(--stx) * 0.7), calc(-50% + var(--sty) * 0.7)) scale(1); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--stx)), calc(-50% + var(--sty))) scale(0); }
+    }
+    .sparkle-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: sparkleOut var(--sdur, 800ms) ease-out var(--sdelay, 0ms) forwards;
+      box-shadow: 0 0 6px currentColor;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .cat-burst-particle, .cat-burst-transparent { display: none !important; animation: none !important; }
+      .cat-burst-transparent, .sparkle-particle { display: none !important; animation: none !important; }
     }
 
     /* ============ DARK MODE OVERRIDES ============ */
@@ -109,7 +123,7 @@
     html.dark .text-\[\#3F6251\] { color: #8FCBA5 !important; }
     html.dark .border-\[\#3F6251\]\/30 { border-color: rgba(143,203,165,0.3) !important; }
     html.dark .border-\[\#3F6251\]\/20 { border-color: rgba(143,203,165,0.2) !important; }
-    html.dark .border-\[\#3F6251\]\/40 { border-color: rgba(143,203,165,0.4) !important; }
+    html.dark .cat-burst-transparent { mix-blend-mode: normal; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5)); }
   </style>
 </head>
 <body class="min-h-screen antialiased pb-16">
@@ -119,7 +133,6 @@
     <div class="max-w-5xl mx-auto px-4 md:px-8 py-4">
       <div class="flex items-center justify-between gap-4">
 
-        <!-- Top Right: Avatar & Name -->
         <div class="flex items-center gap-3.5">
           <img id="userAvatarImg"
                src="https://t.me/i/userpic/320/RIRIHYO.jpg"
@@ -134,35 +147,27 @@
           </div>
         </div>
 
-        <!-- Top Left: Progress + Actions -->
         <div class="text-left">
           <div class="flex items-center justify-end gap-2">
-            <!-- Actions -->
             <div class="flex items-center gap-0.5">
-              <button onclick="exportProgress()" title="تصدير التقدم"
-                      aria-label="تصدير التقدم"
-                      class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-500 transition">
+              <button onclick="exportProgress()" title="تصدير التقدم" class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-500 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               </button>
-              <button onclick="importProgress()" title="استيراد التقدم"
-                      aria-label="استيراد التقدم"
-                      class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-500 transition">
+              <button onclick="importProgress()" title="استيراد التقدم" class="p-1.5 rounded-lg hover:bg-stone-100 text-stone-500 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               </button>
-              <button onclick="resetProgress()" title="إعادة ضبط التقدم"
-                      aria-label="إعادة ضبط التقدم"
-                      class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition">
+              <button onclick="resetProgress()" title="إعادة ضبط التقدم" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
               </button>
             </div>
 
             <div class="flex items-center gap-1.5 text-xs md:text-sm text-stone-600">
-              <span>المهام:</span>
+              <span class="hidden sm:inline">المهام:</span>
               <span id="progressSummaryText" class="font-bold text-stone-800">0 / 70</span>
               <span class="font-bold text-[#3F6251]" id="progressPercentageText">(0%)</span>
             </div>
           </div>
-          <div class="w-32 md:w-44 bg-stone-100 rounded-full h-2 mt-1.5 overflow-hidden">
+          <div class="w-24 md:w-44 bg-stone-100 rounded-full h-2 mt-1.5 overflow-hidden">
             <div id="topProgressBar" class="bg-[#3F6251] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
           </div>
           <p class="text-[11px] text-stone-500 mt-1">
@@ -175,12 +180,12 @@
   </header>
 
   <!-- ==================== MAIN ==================== -->
-  <main class="max-w-5xl mx-auto px-4 md:px-8 pt-5 space-y-5">
+  <main class="max-w-5xl mx-auto px-2 md:px-8 pt-5 space-y-5">
 
     <!-- ============ الملفات ============ -->
     <section class="bg-white rounded-2xl border border-stone-200 p-4 md:p-5">
       <h2 class="text-xs md:text-sm font-bold text-stone-600 mb-3">اهم الملفات</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <a id="linkTaasees"
            href="https://docs.google.com/viewer?url=https%3A%2F%2Fraw.githubusercontent.com%2Frjx8%2FRmoos%2Fmain%2F%25D9%2583%25D8%25AA%25D8%25A7%25D8%25A8%2520%25D8%25A7%25D9%2584%25D8%25AA%25D8%25A7%25D9%2594%25D8%25B3%25D9%258A%25D8%25B3.pdf&embedded=true"
            target="_blank" rel="noopener noreferrer"
@@ -230,12 +235,12 @@
     <div class="sticky top-0 z-20 bg-[#FAF9F6]/95 backdrop-blur-sm py-2">
       <div class="grid grid-cols-2 gap-2.5 bg-stone-200/80 p-1.5 rounded-xl" role="tablist">
         <button id="tabVideosBtn" role="tab" aria-selected="true"
-                class="py-3 px-4 rounded-lg text-xs md:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex items-center justify-center gap-2">
+                class="py-3 px-2 md:px-4 rounded-lg text-xs md:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
           <span>جدول التأسيس (المقاطع)</span>
           <span id="videosCounter" class="text-[11px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">0 / 35</span>
         </button>
         <button id="tabExercisesBtn" role="tab" aria-selected="false"
-                class="py-3 px-4 rounded-lg text-xs md:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex items-center justify-center gap-2">
+                class="py-3 px-2 md:px-4 rounded-lg text-xs md:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
           <span>جدول التجميعات (الصفحات)</span>
           <span id="exercisesCounter" class="text-[11px] px-2 py-0.5 rounded-full bg-stone-200/80 text-stone-600 font-medium">0 / 35</span>
         </button>
@@ -244,31 +249,35 @@
 
     <!-- ============ TABLES ============ -->
     <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-      <table id="videosTable" class="text-right text-xs md:text-sm" role="tabpanel">
-        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs">
+      
+      <!-- TABLE 1: Videos -->
+      <table id="videosTable" class="text-right text-xs md:text-sm w-full" role="tabpanel">
+        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-[11px] md:text-xs">
           <tr>
-            <th class="py-3.5 px-2 w-[48px] md:w-[60px] text-center font-semibold">تم</th>
-            <th class="py-3.5 px-3 w-[90px] md:w-[130px] font-semibold">اليوم</th>
-            <th class="py-3.5 px-3 w-[110px] md:w-[160px] font-semibold">نوع اليوم</th>
-            <th class="py-3.5 px-3 md:px-4 font-semibold">المقاطع المستهدفة (التأسيس)</th>
-            <th class="py-3.5 px-2 w-[90px] md:w-[130px] text-center font-semibold">التجميعات</th>
+            <th class="py-3 px-1 md:px-2 text-center font-semibold w-12">تم</th>
+            <th class="py-3 px-1 md:px-2 font-semibold whitespace-nowrap">اليوم</th>
+            <th class="py-3 px-1 md:px-2 font-semibold">نوع اليوم</th>
+            <th class="py-3 px-2 md:px-4 font-semibold w-full">المقاطع المستهدفة</th>
+            <th class="py-3 px-1 md:px-2 text-center font-semibold">التجميعات</th>
           </tr>
         </thead>
         <tbody id="videosTableBody" class="divide-y divide-stone-100"></tbody>
       </table>
 
-      <table id="exercisesTable" class="text-right text-xs md:text-sm hidden" role="tabpanel">
-        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs">
+      <!-- TABLE 2: Exercises -->
+      <table id="exercisesTable" class="text-right text-xs md:text-sm w-full hidden" role="tabpanel">
+        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-[11px] md:text-xs">
           <tr>
-            <th class="py-3.5 px-2 w-[48px] md:w-[60px] text-center font-semibold">تم</th>
-            <th class="py-3.5 px-3 w-[90px] md:w-[130px] font-semibold">اليوم</th>
-            <th class="py-3.5 px-3 w-[100px] md:w-[140px] font-semibold">الصفحات</th>
-            <th class="py-3.5 px-3 md:px-4 font-semibold">تدريبات كتاب التجميعات</th>
-            <th class="py-3.5 px-2 w-[90px] md:w-[130px] text-center font-semibold">التأسيس</th>
+            <th class="py-3 px-1 md:px-2 text-center font-semibold w-12">تم</th>
+            <th class="py-3 px-1 md:px-2 font-semibold whitespace-nowrap">اليوم</th>
+            <th class="py-3 px-1 md:px-2 font-semibold whitespace-nowrap">الصفحات</th>
+            <th class="py-3 px-2 md:px-4 font-semibold w-full">تدريبات التجميعات</th>
+            <th class="py-3 px-1 md:px-2 text-center font-semibold">التأسيس</th>
           </tr>
         </thead>
         <tbody id="exercisesTableBody" class="divide-y divide-stone-100"></tbody>
       </table>
+
     </div>
 
   </main>
@@ -278,13 +287,9 @@
     const STORAGE_KEY = 'rimas_auto_progress_v3';
     const STORAGE_BACKUP_KEY = 'rimas_auto_progress_v3_backup';
 
-    // الصور بأسماء ملفاتك (9712 هي الشفافة)
+    // مسار الصورة الشفافة فقط
     const CAT_IMAGES = [
-      { src: './IMG_9707.jpeg', isTransparent: false },
-      { src: './IMG_9709.jpeg', isTransparent: false },
-      { src: './IMG_9710.jpeg', isTransparent: false },
-      { src: './IMG_9711.jpeg', isTransparent: false },
-      { src: './IMG_9712.jpeg', isTransparent: true }
+      './IMG_9712.jpeg'
     ];
 
     // ============ DATA ============
@@ -421,11 +426,11 @@
       document.getElementById('exercisesCounter').textContent = `${eCount} / ${total}`;
     }
 
-    // ============ CAT BURST ============
+    // ============ CAT BURST & SPARKLES ============
     function preloadCatImages() {
-      CAT_IMAGES.forEach(item => {
+      CAT_IMAGES.forEach(src => {
         const img = new Image();
-        img.src = item.src;
+        img.src = src;
       });
     }
 
@@ -437,44 +442,28 @@
       const originX = rect.left + rect.width / 2;
       const originY = rect.top + rect.height / 2;
 
-      // نجعل الصورة الشفافة (رقم 4) هي الأكثر تكراراً
-      // 0,1,2,3 = الصور العادية (مرة واحدة لكل منها)
-      // 4 = الصورة الشفافة (تتكرر 7 مرات)
-      let burstPool = [0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4];
-      
-      // خلط عشوائي للمصفوفة (Fisher-Yates shuffle)
-      for (let i = burstPool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [burstPool[i], burstPool[j]] = [burstPool[j], burstPool[i]];
-      }
-
-      const burstIndices = burstPool;
-
-      burstIndices.forEach((imgIdx, i) => {
-        const item = CAT_IMAGES[imgIdx];
+      // 1. انبثاق القطة (مرة واحدة أو عدة مرات لكن نفس الصورة)
+      const numCats = 6; 
+      for (let i = 0; i < numCats; i++) {
         const img = document.createElement('img');
-        img.className = item.isTransparent ? 'cat-burst-transparent' : 'cat-burst-particle';
+        img.className = 'cat-burst-transparent';
+        img.src = CAT_IMAGES[0]; // الصورة الشفافة
         img.alt = '';
-        img.onerror = () => { if (img.parentNode) img.parentNode.removeChild(img); };
-        img.src = item.src;
-
-        const size = Math.round(54 + (i % 3) * 10);
+        
+        const size = Math.round(25 + Math.random() * 20); // حجم صغير (25px - 45px)
         img.style.width = size + 'px';
         img.style.height = size + 'px';
         img.style.left = originX + 'px';
         img.style.top = originY + 'px';
 
-        const angleSpread = (Math.PI * 0.65) + (i / (burstIndices.length - 1)) * (Math.PI * 0.95);
-        const distance = 65 + (i % 3) * 42 + Math.random() * 25;
-        let tx = Math.cos(angleSpread) * distance;
-        let ty = Math.sin(angleSpread) * distance - 20;
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 40 + Math.random() * 60; // مسافة قريبة
+        let tx = Math.cos(angle) * distance;
+        let ty = Math.sin(angle) * distance - 20;
 
-        if (originX + tx > window.innerWidth - 45) tx = -Math.abs(tx) - 35;
-        if (originX + tx < 45) tx = Math.abs(tx) + 35;
-
-        const rot = Math.round((Math.random() - 0.5) * 32) + 'deg';
-        const delay = (i * 42) + 'ms';
-        const dur = (1050 + (i % 3) * 160) + 'ms';
+        const rot = Math.round((Math.random() - 0.5) * 60) + 'deg';
+        const delay = (Math.random() * 200) + 'ms';
+        const dur = (800 + Math.random() * 400) + 'ms';
 
         img.style.setProperty('--tx', Math.round(tx) + 'px');
         img.style.setProperty('--ty', Math.round(ty) + 'px');
@@ -484,11 +473,47 @@
 
         document.body.appendChild(img);
 
-        // إزالة الصورة بعد انتهاء الأنيميشن
         setTimeout(() => {
           if (img.parentNode) img.parentNode.removeChild(img);
-        }, 1900 + i * 45);
-      });
+        }, 2000);
+      }
+
+      // 2. الطراطيع (Sparkles)
+      const colors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#E91E63', '#9C27B0'];
+      const numSparkles = 20;
+      
+      for (let i = 0; i < numSparkles; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle-particle';
+        
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        sparkle.style.backgroundColor = color;
+        sparkle.style.color = color; // for box-shadow
+        
+        sparkle.style.left = originX + 'px';
+        sparkle.style.top = originY + 'px';
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 30 + Math.random() * 90; 
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+
+        // أحجام مختلفة للطراطيع
+        const size = Math.round(4 + Math.random() * 6);
+        sparkle.style.width = size + 'px';
+        sparkle.style.height = size + 'px';
+
+        sparkle.style.setProperty('--stx', Math.round(tx) + 'px');
+        sparkle.style.setProperty('--sty', Math.round(ty) + 'px');
+        sparkle.style.setProperty('--sdur', (600 + Math.random() * 600) + 'ms');
+        sparkle.style.setProperty('--sdelay', (Math.random() * 100) + 'ms');
+
+        document.body.appendChild(sparkle);
+
+        setTimeout(() => {
+          if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
+        }, 1500);
+      }
     }
 
     // ============ TOGGLES ============
@@ -518,8 +543,8 @@
       if (vRow) vRow.classList.toggle('row-complete', !!p.v);
       if (eRow) eRow.classList.toggle('row-complete', !!p.e);
 
-      const donePartnerClass = 'inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[11px] md:text-xs font-medium bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30 transition';
-      const pendingPartnerClass = 'inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[11px] md:text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition';
+      const donePartnerClass = 'inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[10px] md:text-xs font-medium bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30 transition';
+      const pendingPartnerClass = 'inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[10px] md:text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition';
 
       if (vPartnerBtn) {
         vPartnerBtn.className = p.e ? donePartnerClass : pendingPartnerClass;
@@ -561,7 +586,7 @@
           lastPhase = d.phaseId;
           const phaseHeader = `
             <tr class="bg-stone-100/90 border-y border-stone-200">
-              <td colspan="5" class="py-2.5 px-4 text-xs md:text-sm font-bold text-stone-700">
+              <td colspan="5" class="py-2.5 px-3 md:px-4 text-[11px] md:text-sm font-bold text-stone-700">
                 ${d.phaseTitle}
               </td>
             </tr>
@@ -574,21 +599,20 @@
 
         vHtml += `
           <tr id="v-row-${d.day}" class="transition-colors hover:bg-stone-50/80 ${p.v ? 'row-complete' : ''}">
-            <td class="py-3.5 px-2 text-center">
+            <td class="py-3 px-1 md:px-2 text-center">
               <input type="checkbox" ${p.v ? 'checked' : ''}
                      onchange="toggleVideo(${d.day}, this)"
-                     class="w-5 h-5 rounded cursor-pointer"
-                     aria-label="تعليم مقاطع اليوم ${d.day} كمكتملة">
+                     class="w-4 h-4 md:w-5 md:h-5 rounded cursor-pointer">
             </td>
-            <td class="py-3.5 px-3 font-bold text-stone-800">اليوم ${d.day}</td>
-            <td class="py-3.5 px-3 text-stone-500 text-xs">${d.type}</td>
-            <td class="py-3.5 px-3 md:px-4 text-stone-800 font-medium">${d.videosDetail}</td>
-            <td class="py-3.5 px-2 text-center">
+            <td class="py-3 px-1 md:px-2 font-bold text-stone-800 whitespace-nowrap text-[11px] md:text-sm">اليوم ${d.day}</td>
+            <td class="py-3 px-1 md:px-2 text-stone-500 text-[10px] md:text-xs">${d.type}</td>
+            <td class="py-3 px-2 md:px-4 text-stone-800 font-medium text-[11px] md:text-sm">${d.videosDetail}</td>
+            <td class="py-3 px-1 md:px-2 text-center">
               <button id="v-partner-btn-${d.day}"
                       onclick="switchTableToDay('exercises', ${d.day})"
-                      aria-label="الانتقال لتجميعات اليوم ${d.day}"
-                      class="inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[11px] md:text-xs font-medium ${p.e ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
-                <span>التجميعات</span>
+                      class="inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 md:px-2 rounded-lg text-[10px] md:text-xs font-medium ${p.e ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
+                <span class="hidden sm:inline">التجميعات</span>
+                <span class="sm:hidden">تجميع</span>
                 ${p.e ? SVG_CHECK : SVG_ARROW_LEFT}
               </button>
             </td>
@@ -597,25 +621,24 @@
 
         eHtml += `
           <tr id="e-row-${d.day}" class="transition-colors hover:bg-stone-50/80 ${p.e ? 'row-complete' : ''}">
-            <td class="py-3.5 px-2 text-center">
+            <td class="py-3 px-1 md:px-2 text-center">
               <input type="checkbox" ${p.e ? 'checked' : ''}
                      onchange="toggleExercise(${d.day}, this)"
-                     class="w-5 h-5 rounded cursor-pointer"
-                     aria-label="تعليم تجميعات اليوم ${d.day} كمكتملة">
+                     class="w-4 h-4 md:w-5 md:h-5 rounded cursor-pointer">
             </td>
-            <td class="py-3.5 px-3 font-bold text-stone-800">اليوم ${d.day}</td>
-            <td class="py-3.5 px-3">
-              <span class="inline-block px-2 py-0.5 rounded-md text-xs font-bold bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/20">
+            <td class="py-3 px-1 md:px-2 font-bold text-stone-800 whitespace-nowrap text-[11px] md:text-sm">اليوم ${d.day}</td>
+            <td class="py-3 px-1 md:px-2 whitespace-nowrap">
+              <span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] md:text-xs font-bold bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/20">
                 ${d.exercisesPages}
               </span>
             </td>
-            <td class="py-3.5 px-3 md:px-4 text-stone-800 font-medium">${d.exercises}</td>
-            <td class="py-3.5 px-2 text-center">
+            <td class="py-3 px-2 md:px-4 text-stone-800 font-medium text-[11px] md:text-sm">${d.exercises}</td>
+            <td class="py-3 px-1 md:px-2 text-center">
               <button id="e-partner-btn-${d.day}"
                       onclick="switchTableToDay('videos', ${d.day})"
-                      aria-label="الانتقال لمقاطع اليوم ${d.day}"
-                      class="inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[11px] md:text-xs font-medium ${p.v ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
-                <span>المقاطع</span>
+                      class="inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 md:px-2 rounded-lg text-[10px] md:text-xs font-medium ${p.v ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
+                <span class="hidden sm:inline">المقاطع</span>
+                <span class="sm:hidden">مقطع</span>
                 ${p.v ? SVG_CHECK : SVG_ARROW_LEFT}
               </button>
             </td>
@@ -634,8 +657,8 @@
       const bVid = document.getElementById('tabVideosBtn');
       const bEx = document.getElementById('tabExercisesBtn');
 
-      const activeBtnClass = 'py-3 px-4 rounded-lg text-xs md:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex items-center justify-center gap-2';
-      const inactiveBtnClass = 'py-3 px-4 rounded-lg text-xs md:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex items-center justify-center gap-2';
+      const activeBtnClass = 'py-3 px-1 md:px-4 rounded-lg text-[10px] md:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2';
+      const inactiveBtnClass = 'py-3 px-1 md:px-4 rounded-lg text-[10px] md:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2';
 
       if (mode === 'videos') {
         vTable.classList.remove('hidden');
@@ -656,14 +679,17 @@
 
     function configureRepoFileLinks() {
       if (!window.location.hostname.endsWith('github.io')) return;
+      
+      // ترميز المسافات في أسماء الملفات لضمان عملها على GitHub Pages
       const links = [
-        ['linkTaasees', 'كتاب التأسيس.pdf'],
-        ['linkTajmee3at', 'كتاب تجميعات الدروس.pdf'],
+        ['linkTaasees', 'كتاب%20التأسيس.pdf'],
+        ['linkTajmee3at', 'كتاب%20تجميعات%20الدروس.pdf'],
         ['linkQawaneen', 'القوانين.pdf']
       ];
+      
       links.forEach(([id, filename]) => {
         const el = document.getElementById(id);
-        if (el) el.href = './' + encodeURIComponent(filename);
+        if (el) el.href = './' + filename;
       });
     }
 
