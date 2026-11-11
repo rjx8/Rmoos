@@ -60,7 +60,7 @@
       100% { opacity: 0; transform: translate(calc(-50% + var(--tx) * 1.2), calc(-50% + var(--ty) * 1.2 - 20px)) scale(0.4) rotate(var(--rot)); }
     }
     
-    /* سر حيلة الشفافية للصور JPEG */
+    /* حيلة إخفاء الخلفية البيضاء للصور JPEG */
     .cat-burst-transparent {
       position: fixed;
       pointer-events: none;
@@ -186,8 +186,10 @@
     <section class="bg-white rounded-2xl border border-stone-200 p-4 md:p-5">
       <h2 class="text-xs md:text-sm font-bold text-stone-600 mb-3">اهم الملفات</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        
+        <!-- تم تثبيت الروابط المباشرة بناءً على أسماء الملفات -->
         <a id="linkTaasees"
-           href="https://docs.google.com/viewer?url=https%3A%2F%2Fraw.githubusercontent.com%2Frjx8%2FRmoos%2Fmain%2F%25D9%2583%25D8%25AA%25D8%25A7%25D8%25A8%2520%25D8%25A7%25D9%2584%25D8%25AA%25D8%25A7%25D9%2594%25D8%25B3%25D9%258A%25D8%25B3.pdf&embedded=true"
+           href="./%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3.pdf"
            target="_blank" rel="noopener noreferrer"
            class="group flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
           <div class="overflow-hidden">
@@ -198,7 +200,7 @@
         </a>
 
         <a id="linkTajmee3at"
-           href="https://docs.google.com/viewer?url=https%3A%2F%2Fraw.githubusercontent.com%2Frjx8%2FRmoos%2Fmain%2F%25D9%2583%25D8%25AA%25D8%25A7%25D8%25A8%2520%25D8%25AA%25D8%25AC%25D9%2585%25D9%258A%25D8%25B9%25D8%25A7%25D8%25AA%2520%25D8%25A7%25D9%2584%25D8%25AF%25D8%25B1%25D9%2588%25D8%25B3.pdf&embedded=true"
+           href="./%D9%83%D8%AA%D8%A7%D8%A8%20%D8%AA%D8%AC%D9%85%D9%8A%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D8%B1%D9%88%D8%B3.pdf"
            target="_blank" rel="noopener noreferrer"
            class="group flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
           <div class="overflow-hidden">
@@ -209,7 +211,7 @@
         </a>
 
         <a id="linkQawaneen"
-           href="https://docs.google.com/viewer?url=https%3A%2F%2Fraw.githubusercontent.com%2Frjx8%2FRmoos%2Fmain%2F%25D8%25A7%25D9%2584%25D9%2582%25D9%2588%25D8%25A7%25D9%2586%25D9%258A%25D9%2586.pdf&embedded=true"
+           href="./%D8%A7%D9%84%D9%82%D9%88%D8%A7%D9%86%D9%8A%D9%86.pdf"
            target="_blank" rel="noopener noreferrer"
            class="group flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
           <div class="overflow-hidden">
@@ -289,7 +291,7 @@
 
     // مسار الصورة الشفافة فقط
     const CAT_IMAGES = [
-      './IMG_9712.jpeg'
+      './Cat4.png'
     ];
 
     // ============ DATA ============
@@ -442,7 +444,7 @@
       const originX = rect.left + rect.width / 2;
       const originY = rect.top + rect.height / 2;
 
-      // 1. انبثاق القطة (مرة واحدة أو عدة مرات لكن نفس الصورة)
+      // 1. انبثاق القطة
       const numCats = 6; 
       for (let i = 0; i < numCats; i++) {
         const img = document.createElement('img');
@@ -450,19 +452,22 @@
         img.src = CAT_IMAGES[0]; // الصورة الشفافة
         img.alt = '';
         
-        const size = Math.round(25 + Math.random() * 20); // حجم صغير (25px - 45px)
+        const size = Math.round(30 + Math.random() * 20); // حجم صغير (30px - 50px)
         img.style.width = size + 'px';
         img.style.height = size + 'px';
         img.style.left = originX + 'px';
         img.style.top = originY + 'px';
 
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 40 + Math.random() * 60; // مسافة قريبة
-        let tx = Math.cos(angle) * distance;
-        let ty = Math.sin(angle) * distance - 20;
+        // توجيه الانبثاق دائماً نحو اليسار (لأن الزر على اليمين)
+        let tx = -Math.abs(Math.random() * 100 + 20); // دائماً بالسالب (يسار)
+        let ty = (Math.random() - 0.5) * 100; // أعلى أو أسفل
+
+        // منع الخروج من أعلى أو أسفل الشاشة
+        if (originY + ty < 60) ty = Math.abs(ty); 
+        if (originY + ty > window.innerHeight - 60) ty = -Math.abs(ty);
 
         const rot = Math.round((Math.random() - 0.5) * 60) + 'deg';
-        const delay = (Math.random() * 200) + 'ms';
+        const delay = (Math.random() * 150) + 'ms';
         const dur = (800 + Math.random() * 400) + 'ms';
 
         img.style.setProperty('--tx', Math.round(tx) + 'px');
@@ -488,17 +493,18 @@
         
         const color = colors[Math.floor(Math.random() * colors.length)];
         sparkle.style.backgroundColor = color;
-        sparkle.style.color = color; // for box-shadow
+        sparkle.style.color = color; 
         
         sparkle.style.left = originX + 'px';
         sparkle.style.top = originY + 'px';
 
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 30 + Math.random() * 90; 
-        const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance;
+        // توجيه الطراطيع أيضاً نحو اليسار وتفريقها
+        let tx = -Math.abs(Math.random() * 120 + 10);
+        let ty = (Math.random() - 0.5) * 120; 
 
-        // أحجام مختلفة للطراطيع
+        if (originY + ty < 60) ty = Math.abs(ty); 
+        if (originY + ty > window.innerHeight - 60) ty = -Math.abs(ty);
+
         const size = Math.round(4 + Math.random() * 6);
         sparkle.style.width = size + 'px';
         sparkle.style.height = size + 'px';
@@ -677,26 +683,9 @@
       }
     }
 
-    function configureRepoFileLinks() {
-      if (!window.location.hostname.endsWith('github.io')) return;
-      
-      // ترميز المسافات في أسماء الملفات لضمان عملها على GitHub Pages
-      const links = [
-        ['linkTaasees', 'كتاب%20التأسيس.pdf'],
-        ['linkTajmee3at', 'كتاب%20تجميعات%20الدروس.pdf'],
-        ['linkQawaneen', 'القوانين.pdf']
-      ];
-      
-      links.forEach(([id, filename]) => {
-        const el = document.getElementById(id);
-        if (el) el.href = './' + filename;
-      });
-    }
-
     // ============ INIT ============
     document.addEventListener('DOMContentLoaded', () => {
       loadProgress();
-      configureRepoFileLinks();
       initTelegram();
       preloadCatImages();
       renderTables();
