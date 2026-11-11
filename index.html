@@ -21,45 +21,40 @@
     body {
       background-color: #FAF9F6;
       color: #292524;
-    }
-    /* Subtle scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #F5F5F4;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #D6D3D1;
-      border-radius: 9999px;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
     }
     /* Completed row subtle sage tint */
     .row-complete {
       background-color: #F2F9F5 !important;
     }
-    /* Brief flash when switching tables on the same day */
+    /* Brief highlight when switching between the two tables on a specific day */
     .row-flash {
       background-color: #E7E5E4 !important;
     }
     input[type="checkbox"] {
       accent-color: #3F6251;
     }
+    /* Fit 100% of screen width with zero horizontal scrolling */
     table {
       width: 100%;
+      table-layout: fixed;
       border-collapse: collapse;
     }
     th, td {
       vertical-align: middle;
-      line-height: 1.65;
+      line-height: 1.6;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
   </style>
 </head>
-<body class="min-h-screen antialiased pb-12">
+<body class="min-h-screen antialiased pb-14">
 
   <!-- ==================== HEADER ==================== -->
   <header class="bg-white border-b border-stone-200">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4">
+    <div class="max-w-4xl mx-auto px-4 py-4">
       <div class="flex items-center justify-between gap-4">
         
         <!-- Top Right: Rimas & @RIRIHYO Telegram Avatar -->
@@ -84,7 +79,7 @@
             <span id="progressSummaryText" class="font-bold text-stone-800">0 / 35 يوم</span>
             <span class="font-bold text-[#3F6251]" id="progressPercentageText">(0%)</span>
           </div>
-          <div class="w-28 sm:w-40 bg-stone-100 rounded-full h-1.5 mt-1.5 overflow-hidden">
+          <div class="w-28 sm:w-36 bg-stone-100 rounded-full h-1.5 mt-1.5 overflow-hidden">
             <div id="topProgressBar" class="bg-[#3F6251] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
           </div>
         </div>
@@ -94,102 +89,94 @@
   </header>
 
   <!-- ==================== MAIN CONTENT ==================== -->
-  <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
+  <main class="max-w-4xl mx-auto px-3 sm:px-4 pt-5 space-y-5">
 
-    <!-- ==================== 1. REPOSITORY FILES (مستودع الملفات) ==================== -->
-    <section class="bg-white rounded-xl border border-stone-200 p-4">
-      <h2 class="text-xs font-bold text-stone-500 mb-3">ملفات المذاكرة والمراجع</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <button onclick="openRepoFile('كتاب التأسيس.pdf', 'كتاب التاسيس')" class="text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
-          <p class="text-xs font-bold text-stone-800">كتاب التاسيس</p>
-          <p class="text-[11px] text-stone-400 font-mono mt-0.5">كتاب التأسيس.pdf</p>
-        </button>
-
-        <button onclick="openRepoFile('كتاب تجميعات الدروس.pdf', 'كتاب التجميعات')" class="text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
-          <p class="text-xs font-bold text-stone-800">كتاب التجميعات</p>
-          <p class="text-[11px] text-stone-400 font-mono mt-0.5">كتاب تجميعات الدروس.pdf</p>
-        </button>
-
-        <button onclick="openRepoFile('القوانين.pdf', 'ملف القوانين للمراجعه')" class="text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
-          <p class="text-xs font-bold text-stone-800">ملف القوانين للمراجعه</p>
-          <p class="text-[11px] text-stone-400 font-mono mt-0.5">القوانين.pdf</p>
-        </button>
-
-        <a href="https://t.me/zaam_li5il" target="_blank" rel="noopener noreferrer" class="block text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
-          <p class="text-xs font-bold text-stone-800">اختبارات كويزات للتجميعات</p>
-          <p class="text-[11px] text-[#3F6251] font-mono mt-0.5 dir-ltr">t.me/zaam_li5il ↗</p>
+    <!-- ==================== 1. DIRECT REPOSITORY FILES (فتح مباشر من مستودع GitHub) ==================== -->
+    <section class="bg-white rounded-xl border border-stone-200 p-3.5 sm:p-4">
+      <h2 class="text-xs font-bold text-stone-500 mb-2.5">ملفات المذاكرة والمراجع (اضغطي لفتح الملف مباشرة)</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        
+        <a href="https://raw.githubusercontent.com/rjx8/Rmoos/main/%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3.pdf" 
+           target="_blank" rel="noopener noreferrer" 
+           class="block text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
+          <p class="text-xs font-bold text-stone-800">كتاب التاسيس ↗</p>
+          <p class="text-[11px] text-stone-400 mt-0.5 truncate">كتاب التأسيس.pdf</p>
         </a>
+
+        <a href="https://raw.githubusercontent.com/rjx8/Rmoos/main/%D9%83%D8%AA%D8%A7%D8%A8%20%D8%AA%D8%AC%D9%85%D9%8A%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D8%B1%D9%88%D8%B3.pdf" 
+           target="_blank" rel="noopener noreferrer" 
+           class="block text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
+          <p class="text-xs font-bold text-stone-800">كتاب التجميعات ↗</p>
+          <p class="text-[11px] text-stone-400 mt-0.5 truncate">كتاب تجميعات الدروس.pdf</p>
+        </a>
+
+        <a href="https://raw.githubusercontent.com/rjx8/Rmoos/main/%D8%A7%D9%84%D9%82%D9%88%D8%A7%D9%86%D9%8A%D9%86.pdf" 
+           target="_blank" rel="noopener noreferrer" 
+           class="block text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
+          <p class="text-xs font-bold text-stone-800">ملف القوانين للمراجعه ↗</p>
+          <p class="text-[11px] text-stone-400 mt-0.5 truncate">القوانين.pdf</p>
+        </a>
+
+        <a href="https://t.me/zaam_li5il" 
+           target="_blank" rel="noopener noreferrer" 
+           class="block text-right p-3 rounded-lg border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
+          <p class="text-xs font-bold text-stone-800">اختبارات كويزات للتجميعات ↗</p>
+          <p class="text-[11px] text-[#3F6251] font-mono mt-0.5 dir-ltr truncate">t.me/zaam_li5il</p>
+        </a>
+
       </div>
     </section>
 
-    <!-- ==================== 2. SEPARATE TABLE SWITCHER (جدول المقاطع | جدول التجميعات) ==================== -->
-    <div class="grid grid-cols-2 gap-2.5 bg-stone-200/70 p-1.5 rounded-xl">
-      <button id="tabVideosBtn" class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex items-center justify-center gap-2">
-        <span>جدول المقاطع والتأسيس</span>
-        <span id="videosCounter" class="text-[11px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">0 / 35</span>
-      </button>
-      <button id="tabExercisesBtn" class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex items-center justify-center gap-2">
-        <span>جدول تدريبات التجميعات</span>
-        <span id="exercisesCounter" class="text-[11px] px-2 py-0.5 rounded-full bg-stone-200/80 text-stone-600 font-medium">0 / 35</span>
-      </button>
+    <!-- ==================== 2. STICKY TABLE SWITCHER ==================== -->
+    <div class="sticky top-0 z-20 bg-[#FAF9F6]/95 backdrop-blur-sm py-2">
+      <div class="grid grid-cols-2 gap-2 bg-stone-200/80 p-1.5 rounded-xl">
+        <button id="tabVideosBtn" class="py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex items-center justify-center gap-1.5">
+          <span>جدول المقاطع</span>
+          <span id="videosCounter" class="text-[11px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">0 / 35</span>
+        </button>
+        <button id="tabExercisesBtn" class="py-2.5 px-3 rounded-lg text-xs sm:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex items-center justify-center gap-1.5">
+          <span>جدول التجميعات</span>
+          <span id="exercisesCounter" class="text-[11px] px-2 py-0.5 rounded-full bg-stone-200/80 text-stone-600 font-medium">0 / 35</span>
+        </button>
+      </div>
     </div>
 
-    <!-- ==================== 3. SEPARATE TABLES WITH SYNCHRONIZED SCROLL ==================== -->
+    <!-- ==================== 3. FULL-PAGE NATURAL TABLES (بدون سحب أفقي أو صندوق ضيق) ==================== -->
     <div class="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
       
-      <!-- Shared Scroll Container (560px height) so scrolling days is identical across both tables -->
-      <div id="sharedScrollViewport" class="max-h-[560px] overflow-y-auto overflow-x-auto">
-        
-        <!-- TABLE 1: جدول المقاطع (Shown when tab 1 active) -->
-        <table id="videosTable" class="text-right text-xs sm:text-sm">
-          <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs sticky top-0 z-10">
-            <tr>
-              <th class="py-3 px-3 w-12 text-center font-semibold">تم</th>
-              <th class="py-3 px-3 w-24 font-semibold">اليوم</th>
-              <th class="py-3 px-3 w-36 font-semibold">نوع اليوم</th>
-              <th class="py-3 px-4 font-semibold">المقاطع المستهدفة</th>
-              <th class="py-3 px-3 w-32 text-center font-semibold">الترابط</th>
-            </tr>
-          </thead>
-          <tbody id="videosTableBody" class="divide-y divide-stone-100">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
+      <!-- TABLE 1: جدول المقاطع -->
+      <table id="videosTable" class="text-right text-xs sm:text-sm">
+        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs">
+          <tr>
+            <th class="py-3 px-2 w-[42px] text-center font-semibold">تم</th>
+            <th class="py-3 px-2 w-[78px] sm:w-[95px] font-semibold">اليوم</th>
+            <th class="py-3 px-3 font-semibold">المقاطع المستهدفة</th>
+            <th class="py-3 px-2 w-[76px] sm:w-[105px] text-center font-semibold">التجميعات</th>
+          </tr>
+        </thead>
+        <tbody id="videosTableBody" class="divide-y divide-stone-100">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
 
-        <!-- TABLE 2: جدول التجميعات (Shown when tab 2 active, hidden by default) -->
-        <table id="exercisesTable" class="text-right text-xs sm:text-sm hidden">
-          <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs sticky top-0 z-10">
-            <tr>
-              <th class="py-3 px-3 w-12 text-center font-semibold">تم</th>
-              <th class="py-3 px-3 w-24 font-semibold">اليوم</th>
-              <th class="py-3 px-3 w-28 font-semibold">الصفحات</th>
-              <th class="py-3 px-4 font-semibold">تدريبات كتاب التجميعات</th>
-              <th class="py-3 px-3 w-32 text-center font-semibold">الترابط</th>
-            </tr>
-          </thead>
-          <tbody id="exercisesTableBody" class="divide-y divide-stone-100">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
+      <!-- TABLE 2: جدول التجميعات -->
+      <table id="exercisesTable" class="text-right text-xs sm:text-sm hidden">
+        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-xs">
+          <tr>
+            <th class="py-3 px-2 w-[42px] text-center font-semibold">تم</th>
+            <th class="py-3 px-2 w-[78px] sm:w-[95px] font-semibold">اليوم</th>
+            <th class="py-3 px-3 font-semibold">تدريبات كتاب التجميعات</th>
+            <th class="py-3 px-2 w-[76px] sm:w-[105px] text-center font-semibold">المقاطع</th>
+          </tr>
+        </thead>
+        <tbody id="exercisesTableBody" class="divide-y divide-stone-100">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
 
-      </div>
     </div>
 
   </main>
-
-  <!-- ==================== SIMPLE FILE DIALOG ==================== -->
-  <div id="fileDialog" class="fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-xl max-w-xs w-full p-5 shadow-lg border border-stone-200 text-center space-y-3">
-      <h4 id="fileDialogTitle" class="text-sm font-bold text-stone-800">فتح الملف</h4>
-      <p class="text-xs text-stone-500 leading-relaxed">
-        مسار الملف في المستودع: <span id="fileDialogName" class="font-mono font-bold text-stone-700 dir-ltr"></span>
-      </p>
-      <div class="flex items-center gap-2 pt-2 text-xs">
-        <button id="closeFileDialogBtn" class="flex-1 py-2 rounded-lg border border-stone-200 text-stone-600 font-medium hover:bg-stone-50">إغلاق</button>
-        <a id="openFileDialogLink" href="#" target="_blank" class="flex-1 py-2 rounded-lg bg-stone-800 text-white font-bold hover:bg-stone-900">فتح ↗</a>
-      </div>
-    </div>
-  </div>
 
   <!-- ==================== SCRIPT ==================== -->
   <script>
@@ -197,7 +184,7 @@
     const STORAGE_KEY = 'rimas_auto_progress_v3';
 
     let progress = {}; // dayNum -> { v: bool, e: bool }
-    let currentTab = 'videos'; // 'videos' | 'exercises'
+    let currentTab = 'videos';
 
     function loadProgress() {
       try {
@@ -258,11 +245,9 @@
       renderTables();
     };
 
-    // Switch between the two separate tables while keeping exact scroll position / day alignment
+    // Switch between the two tables and keep exact day position on the page
     window.switchTableToDay = function(targetTab, dayNum) {
-      const viewport = document.getElementById('sharedScrollViewport');
-      const currentScroll = viewport.scrollTop;
-
+      const winScroll = window.scrollY;
       setTab(targetTab);
 
       if (dayNum) {
@@ -275,14 +260,7 @@
           return;
         }
       }
-      viewport.scrollTop = currentScroll;
-    };
-
-    window.openRepoFile = function(fileName, title) {
-      document.getElementById('fileDialogTitle').textContent = title;
-      document.getElementById('fileDialogName').textContent = fileName;
-      document.getElementById('openFileDialogLink').href = './' + encodeURIComponent(fileName);
-      document.getElementById('fileDialog').classList.remove('hidden');
+      window.scrollTo(0, winScroll);
     };
 
     function renderTables() {
@@ -298,7 +276,7 @@
           lastPhase = d.phaseId;
           const phaseHeader = `
             <tr class="bg-stone-100/90 border-y border-stone-200">
-              <td colspan="5" class="py-2 px-4 text-xs font-bold text-stone-700">
+              <td colspan="4" class="py-2.5 px-3 text-xs font-bold text-stone-700">
                 ${d.phaseTitle}
               </td>
             </tr>
@@ -309,55 +287,49 @@
 
         const p = progress[d.day] || { v: false, e: false };
 
-        // Videos Table Row (with direct link badge to that day's Exercises)
+        // Videos Table Row (Compact 4-column layout that fits 100% width with no horizontal scroll)
         vHtml += `
           <tr id="v-row-${d.day}" class="transition-colors hover:bg-stone-50/80 ${p.v ? 'row-complete' : ''}">
-            <td class="py-3 px-3 text-center">
+            <td class="py-3.5 px-2 text-center">
               <input type="checkbox" ${p.v ? 'checked' : ''} 
                      onchange="toggleVideo(${d.day})" 
                      class="w-4 h-4 rounded cursor-pointer">
             </td>
-            <td class="py-3 px-3 font-bold text-stone-800 whitespace-nowrap">
-              اليوم ${d.day}
+            <td class="py-3.5 px-2">
+              <div class="font-bold text-stone-800 text-xs sm:text-sm">اليوم ${d.day}</div>
+              <div class="text-[11px] text-stone-500 mt-0.5 leading-tight">${d.type}</div>
             </td>
-            <td class="py-3 px-3 text-stone-500 text-xs whitespace-nowrap">
-              ${d.type}
-            </td>
-            <td class="py-3 px-4 text-stone-800">
+            <td class="py-3.5 px-3 text-stone-800 text-xs sm:text-sm">
               ${d.videosDetail}
             </td>
-            <td class="py-3 px-3 text-center whitespace-nowrap">
+            <td class="py-3.5 px-2 text-center">
               <button onclick="switchTableToDay('exercises', ${d.day})" 
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium ${p.e ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
-                <span>التجميعات (${d.exercisesPages})</span>
-                <span>${p.e ? '✓' : '←'}</span>
+                      class="w-full py-1.5 px-1.5 rounded-lg text-[11px] font-medium ${p.e ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
+                ${d.exercisesPages} ${p.e ? '✓' : '←'}
               </button>
             </td>
           </tr>
         `;
 
-        // Exercises Table Row (with direct link badge to that day's Videos)
+        // Exercises Table Row (Compact 4-column layout that fits 100% width with no horizontal scroll)
         eHtml += `
           <tr id="e-row-${d.day}" class="transition-colors hover:bg-stone-50/80 ${p.e ? 'row-complete' : ''}">
-            <td class="py-3 px-3 text-center">
+            <td class="py-3.5 px-2 text-center">
               <input type="checkbox" ${p.e ? 'checked' : ''} 
                      onchange="toggleExercise(${d.day})" 
                      class="w-4 h-4 rounded cursor-pointer">
             </td>
-            <td class="py-3 px-3 font-bold text-stone-800 whitespace-nowrap">
-              اليوم ${d.day}
+            <td class="py-3.5 px-2">
+              <div class="font-bold text-stone-800 text-xs sm:text-sm">اليوم ${d.day}</div>
+              <div class="text-[11px] font-bold text-[#3F6251] mt-0.5 leading-tight">${d.exercisesPages}</div>
             </td>
-            <td class="py-3 px-3 font-semibold text-[#3F6251] text-xs whitespace-nowrap">
-              ${d.exercisesPages}
-            </td>
-            <td class="py-3 px-4 text-stone-800">
+            <td class="py-3.5 px-3 text-stone-800 text-xs sm:text-sm">
               ${d.exercises}
             </td>
-            <td class="py-3 px-3 text-center whitespace-nowrap">
+            <td class="py-3.5 px-2 text-center">
               <button onclick="switchTableToDay('videos', ${d.day})" 
-                      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium ${p.v ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
-                <span>مقاطع اليوم ${d.day}</span>
-                <span>${p.v ? '✓' : '←'}</span>
+                      class="w-full py-1.5 px-1.5 rounded-lg text-[11px] font-medium ${p.v ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
+                المقاطع ${p.v ? '✓' : '←'}
               </button>
             </td>
           </tr>
@@ -375,8 +347,8 @@
       const bVid = document.getElementById('tabVideosBtn');
       const bEx = document.getElementById('tabExercisesBtn');
 
-      const activeBtnClass = 'py-2.5 px-4 rounded-lg text-xs sm:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex items-center justify-center gap-2';
-      const inactiveBtnClass = 'py-2.5 px-4 rounded-lg text-xs sm:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex items-center justify-center gap-2';
+      const activeBtnClass = 'py-2.5 px-3 rounded-lg text-xs sm:text-sm font-bold bg-white text-stone-900 shadow-sm transition flex items-center justify-center gap-1.5';
+      const inactiveBtnClass = 'py-2.5 px-3 rounded-lg text-xs sm:text-sm font-medium text-stone-600 hover:text-stone-900 transition flex items-center justify-center gap-1.5';
 
       if (mode === 'videos') {
         vTable.classList.remove('hidden');
@@ -399,10 +371,6 @@
 
       document.getElementById('tabVideosBtn').onclick = () => switchTableToDay('videos');
       document.getElementById('tabExercisesBtn').onclick = () => switchTableToDay('exercises');
-
-      document.getElementById('closeFileDialogBtn').onclick = () => {
-        document.getElementById('fileDialog').classList.add('hidden');
-      };
     });
   </script>
 </body>
