@@ -39,6 +39,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: auto; /* منع تثبيت العرض لتجنب انضغاط الحروف */
     }
     th, td {
       vertical-align: middle;
@@ -60,14 +61,12 @@
       100% { opacity: 0; transform: translate(calc(-50% + var(--tx) * 1.2), calc(-50% + var(--ty) * 1.2 - 20px)) scale(0.4) rotate(var(--rot)); }
     }
     
-    /* حيلة إخفاء الخلفية البيضاء للصور JPEG */
+    /* إزالة أي فلاتر لتجنب السواد */
     .cat-burst-transparent {
       position: fixed;
       pointer-events: none;
       z-index: 9999;
       object-fit: contain;
-      mix-blend-mode: multiply; /* يخفي الخلفية البيضاء */
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
       animation: burstOut var(--dur, 1000ms) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
     }
 
@@ -123,7 +122,6 @@
     html.dark .text-\[\#3F6251\] { color: #8FCBA5 !important; }
     html.dark .border-\[\#3F6251\]\/30 { border-color: rgba(143,203,165,0.3) !important; }
     html.dark .border-\[\#3F6251\]\/20 { border-color: rgba(143,203,165,0.2) !important; }
-    html.dark .cat-burst-transparent { mix-blend-mode: normal; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5)); }
   </style>
 </head>
 <body class="min-h-screen antialiased pb-16">
@@ -187,9 +185,8 @@
       <h2 class="text-xs md:text-sm font-bold text-stone-600 mb-3">اهم الملفات</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         
-        <!-- تم تثبيت الروابط المباشرة بناءً على أسماء الملفات -->
-        <a id="linkTaasees"
-           href="./%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3.pdf"
+        <!-- تم تثبيت الروابط بشكل مباشر ومشفّر لتفتح 100% -->
+        <a href="./%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3.pdf"
            target="_blank" rel="noopener noreferrer"
            class="group flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
           <div class="overflow-hidden">
@@ -199,8 +196,7 @@
           <svg class="w-4 h-4 text-stone-400 group-hover:text-stone-700 flex-shrink-0 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
         </a>
 
-        <a id="linkTajmee3at"
-           href="./%D9%83%D8%AA%D8%A7%D8%A8%20%D8%AA%D8%AC%D9%85%D9%8A%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D8%B1%D9%88%D8%B3.pdf"
+        <a href="./%D9%83%D8%AA%D8%A7%D8%A8%20%D8%AA%D8%AC%D9%85%D9%8A%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D8%B1%D9%88%D8%B3.pdf"
            target="_blank" rel="noopener noreferrer"
            class="group flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
           <div class="overflow-hidden">
@@ -210,8 +206,7 @@
           <svg class="w-4 h-4 text-stone-400 group-hover:text-stone-700 flex-shrink-0 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
         </a>
 
-        <a id="linkQawaneen"
-           href="./%D8%A7%D9%84%D9%82%D9%88%D8%A7%D9%86%D9%8A%D9%86.pdf"
+        <a href="./%D8%A7%D9%84%D9%82%D9%88%D8%A7%D9%86%D9%8A%D9%86.pdf"
            target="_blank" rel="noopener noreferrer"
            class="group flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:border-stone-400 bg-[#FAF9F6] hover:bg-white transition">
           <div class="overflow-hidden">
@@ -256,11 +251,11 @@
       <table id="videosTable" class="text-right text-xs md:text-sm w-full" role="tabpanel">
         <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-[11px] md:text-xs">
           <tr>
-            <th class="py-3 px-1 md:px-2 text-center font-semibold w-12">تم</th>
-            <th class="py-3 px-1 md:px-2 font-semibold whitespace-nowrap">اليوم</th>
-            <th class="py-3 px-1 md:px-2 font-semibold">نوع اليوم</th>
-            <th class="py-3 px-2 md:px-4 font-semibold w-full">المقاطع المستهدفة</th>
-            <th class="py-3 px-1 md:px-2 text-center font-semibold">التجميعات</th>
+            <th class="py-3 px-2 text-center font-semibold w-12">تم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-16 md:w-20">اليوم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-24 md:w-32">نوع اليوم</th>
+            <th class="py-3 px-2 md:px-4 font-semibold">المقاطع اليومية</th>
+            <th class="py-3 px-2 text-center font-semibold whitespace-nowrap w-24 md:w-32">التجميعات</th>
           </tr>
         </thead>
         <tbody id="videosTableBody" class="divide-y divide-stone-100"></tbody>
@@ -270,11 +265,11 @@
       <table id="exercisesTable" class="text-right text-xs md:text-sm w-full hidden" role="tabpanel">
         <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-[11px] md:text-xs">
           <tr>
-            <th class="py-3 px-1 md:px-2 text-center font-semibold w-12">تم</th>
-            <th class="py-3 px-1 md:px-2 font-semibold whitespace-nowrap">اليوم</th>
-            <th class="py-3 px-1 md:px-2 font-semibold whitespace-nowrap">الصفحات</th>
-            <th class="py-3 px-2 md:px-4 font-semibold w-full">تدريبات التجميعات</th>
-            <th class="py-3 px-1 md:px-2 text-center font-semibold">التأسيس</th>
+            <th class="py-3 px-2 text-center font-semibold w-12">تم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-16 md:w-20">اليوم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-20 md:w-24">الصفحات</th>
+            <th class="py-3 px-2 md:px-4 font-semibold">تدريبات التجميعات</th>
+            <th class="py-3 px-2 text-center font-semibold whitespace-nowrap w-24 md:w-32">المقاطع</th>
           </tr>
         </thead>
         <tbody id="exercisesTableBody" class="divide-y divide-stone-100"></tbody>
@@ -289,7 +284,6 @@
     const STORAGE_KEY = 'rimas_auto_progress_v3';
     const STORAGE_BACKUP_KEY = 'rimas_auto_progress_v3_backup';
 
-    // مسار الصورة الشفافة فقط
     const CAT_IMAGES = [
       './Cat4.png'
     ];
@@ -448,21 +442,20 @@
       const numCats = 6; 
       for (let i = 0; i < numCats; i++) {
         const img = document.createElement('img');
-        img.className = 'cat-burst-transparent';
-        img.src = CAT_IMAGES[0]; // الصورة الشفافة
+        img.className = 'cat-burst-transparent'; // بدون أي فلاتر
+        img.src = CAT_IMAGES[0]; 
         img.alt = '';
         
-        const size = Math.round(30 + Math.random() * 20); // حجم صغير (30px - 50px)
+        const size = Math.round(30 + Math.random() * 20); 
         img.style.width = size + 'px';
         img.style.height = size + 'px';
         img.style.left = originX + 'px';
         img.style.top = originY + 'px';
 
         // توجيه الانبثاق دائماً نحو اليسار (لأن الزر على اليمين)
-        let tx = -Math.abs(Math.random() * 100 + 20); // دائماً بالسالب (يسار)
-        let ty = (Math.random() - 0.5) * 100; // أعلى أو أسفل
+        let tx = -Math.abs(Math.random() * 100 + 20); 
+        let ty = (Math.random() - 0.5) * 100; 
 
-        // منع الخروج من أعلى أو أسفل الشاشة
         if (originY + ty < 60) ty = Math.abs(ty); 
         if (originY + ty > window.innerHeight - 60) ty = -Math.abs(ty);
 
@@ -498,7 +491,6 @@
         sparkle.style.left = originX + 'px';
         sparkle.style.top = originY + 'px';
 
-        // توجيه الطراطيع أيضاً نحو اليسار وتفريقها
         let tx = -Math.abs(Math.random() * 120 + 10);
         let ty = (Math.random() - 0.5) * 120; 
 
@@ -549,8 +541,8 @@
       if (vRow) vRow.classList.toggle('row-complete', !!p.v);
       if (eRow) eRow.classList.toggle('row-complete', !!p.e);
 
-      const donePartnerClass = 'inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[10px] md:text-xs font-medium bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30 transition';
-      const pendingPartnerClass = 'inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2 rounded-lg text-[10px] md:text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition';
+      const donePartnerClass = 'inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 rounded-lg text-[10px] md:text-xs font-medium bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30 transition';
+      const pendingPartnerClass = 'inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 rounded-lg text-[10px] md:text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition';
 
       if (vPartnerBtn) {
         vPartnerBtn.className = p.e ? donePartnerClass : pendingPartnerClass;
@@ -605,20 +597,19 @@
 
         vHtml += `
           <tr id="v-row-${d.day}" class="transition-colors hover:bg-stone-50/80 ${p.v ? 'row-complete' : ''}">
-            <td class="py-3 px-1 md:px-2 text-center">
+            <td class="py-3 px-2 text-center">
               <input type="checkbox" ${p.v ? 'checked' : ''}
                      onchange="toggleVideo(${d.day}, this)"
                      class="w-4 h-4 md:w-5 md:h-5 rounded cursor-pointer">
             </td>
-            <td class="py-3 px-1 md:px-2 font-bold text-stone-800 whitespace-nowrap text-[11px] md:text-sm">اليوم ${d.day}</td>
-            <td class="py-3 px-1 md:px-2 text-stone-500 text-[10px] md:text-xs">${d.type}</td>
+            <td class="py-3 px-2 font-bold text-stone-800 whitespace-nowrap text-[11px] md:text-sm">اليوم ${d.day}</td>
+            <td class="py-3 px-2 text-stone-500 text-[10px] md:text-xs">${d.type}</td>
             <td class="py-3 px-2 md:px-4 text-stone-800 font-medium text-[11px] md:text-sm">${d.videosDetail}</td>
-            <td class="py-3 px-1 md:px-2 text-center">
+            <td class="py-3 px-2 text-center">
               <button id="v-partner-btn-${d.day}"
                       onclick="switchTableToDay('exercises', ${d.day})"
-                      class="inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 md:px-2 rounded-lg text-[10px] md:text-xs font-medium ${p.e ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
-                <span class="hidden sm:inline">التجميعات</span>
-                <span class="sm:hidden">تجميع</span>
+                      class="inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 rounded-lg text-[10px] md:text-xs font-medium ${p.e ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
+                <span>التجميعات</span>
                 ${p.e ? SVG_CHECK : SVG_ARROW_LEFT}
               </button>
             </td>
@@ -627,24 +618,23 @@
 
         eHtml += `
           <tr id="e-row-${d.day}" class="transition-colors hover:bg-stone-50/80 ${p.e ? 'row-complete' : ''}">
-            <td class="py-3 px-1 md:px-2 text-center">
+            <td class="py-3 px-2 text-center">
               <input type="checkbox" ${p.e ? 'checked' : ''}
                      onchange="toggleExercise(${d.day}, this)"
                      class="w-4 h-4 md:w-5 md:h-5 rounded cursor-pointer">
             </td>
-            <td class="py-3 px-1 md:px-2 font-bold text-stone-800 whitespace-nowrap text-[11px] md:text-sm">اليوم ${d.day}</td>
-            <td class="py-3 px-1 md:px-2 whitespace-nowrap">
+            <td class="py-3 px-2 font-bold text-stone-800 whitespace-nowrap text-[11px] md:text-sm">اليوم ${d.day}</td>
+            <td class="py-3 px-2 whitespace-nowrap">
               <span class="inline-block px-1.5 py-0.5 rounded-md text-[10px] md:text-xs font-bold bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/20">
                 ${d.exercisesPages}
               </span>
             </td>
             <td class="py-3 px-2 md:px-4 text-stone-800 font-medium text-[11px] md:text-sm">${d.exercises}</td>
-            <td class="py-3 px-1 md:px-2 text-center">
+            <td class="py-3 px-2 text-center">
               <button id="e-partner-btn-${d.day}"
                       onclick="switchTableToDay('videos', ${d.day})"
-                      class="inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 md:px-2 rounded-lg text-[10px] md:text-xs font-medium ${p.v ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
-                <span class="hidden sm:inline">المقاطع</span>
-                <span class="sm:hidden">مقطع</span>
+                      class="inline-flex items-center justify-center gap-1 w-full py-1.5 px-1 rounded-lg text-[10px] md:text-xs font-medium ${p.v ? 'bg-[#F2F9F5] text-[#3F6251] border border-[#3F6251]/30' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} transition">
+                <span>المقاطع</span>
                 ${p.v ? SVG_CHECK : SVG_ARROW_LEFT}
               </button>
             </td>
