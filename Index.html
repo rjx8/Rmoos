@@ -1,1 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>جدول</title>
 
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      font-family: 'Tajawal', sans-serif;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    [hidden] { display: none !important; }
+    body {
+      background-color: #FAF9F6;
+      color: #292524;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    table { width: 100%; border-collapse: collapse; table-layout: auto; }
+    th, td { vertical-align: middle; line-height: 1.6; word-break: normal; overflow-wrap: break-word; }
+    input[type="checkbox"] { accent-color: #3F6251; }
+    html.dark input[type="checkbox"] { accent-color: #8FCBA5; }
+
+    /* ============ ألوان أنواع الأيام ============ */
+    :root {
+      --c-study-bg:#F2F9F5;    --c-study-fg:#3F6251;    --c-study-bar:#6B9A80;
+      --c-periodic-bg:#FFF5DB; --c-periodic-fg:#7A4F00; --c-periodic-bar:#E3A008;
+      --c-chapter-bg:#EAF0FF;  --c-chapter-fg:#2C4A9E;  --c-chapter-bar:#5B7FE6;
+      --c-final-bg:#FCE8EE;    --c-final-fg:#9B2342;    --c-final-bar:#D6456A;
+    }
+    html.dark {
+      --c-study-bg:#1e2e26;    --c-study-fg:#8FCBA5;    --c-study-bar:#4f8a6a;
+      --c-periodic-bg:#33280f; --c-periodic-fg:#F2C14E; --c-periodic-bar:#B98300;
+      --c-chapter-bg:#1b2540;  --c-chapter-fg:#9DB6FF;  --c-chapter-bar:#4A66C0;
+      --c-final-bg:#3a1822;    --c-final-fg:#FF9DB4;    --c-final-bar:#B03556;
+    }
+    .cat-study    { --bg:var(--c-study-bg);    --fg:var(--c-study-fg);    --bar:var(--c-study-bar); }
+    .cat-periodic { --bg:var(--c-periodic-bg); --fg:var(--c-periodic-fg); --bar:var(--c-periodic-bar); }
+    .cat-chapter  { --bg:var(--c-chapter-bg);  --fg:var(--c-chapter-fg);  --bar:var(--c-chapter-bar); }
+    .cat-final    { --bg:var(--c-final-bg);    --fg:var(--c-final-fg);    --bar:var(--c-final-bar); }
+
+    tr.day-row { transition: background-color .15s; }
+    tr.day-row.cat-periodic, tr.day-row.cat-chapter, tr.day-row.cat-final { background-color: var(--bg); }
+    tr.day-row td:first-child { box-shadow: inset -5px 0 0 var(--bar); }
+    tr.day-row:hover td { background-color: rgba(0,0,0,.025); }
+    html.dark tr.day-row:hover td { background-color: rgba(255,255,255,.04); }
+    tr.day-row.is-done.cat-study { background-color: var(--bg); }
+    tr.day-row.is-done td:not(:first-child):not(.cell-go) { opacity: .55; }
+    tr.day-row.row-flash { background-color: #E7E5E4 !important; }
+    html.dark tr.day-row.row-flash { background-color: #3f3a36 !important; }
+
+    .cell-check { padding: 0; text-align: center; }
+    .check-label { display:flex; align-items:center; justify-content:center; padding: 14px 8px; cursor:pointer; }
+    .check-label input { width: 20px; height: 20px; border-radius: 6px; cursor: pointer; }
+    .cell-day  { padding: 12px 8px; white-space: nowrap; }
+    .day-num   { font-weight: 800; color: #292524; font-size: 12px; margin-bottom: 4px; }
+    html.dark .day-num { color: #fafaf9; }
+    .cell-body { padding: 12px 8px; }
+    .cell-go   { padding: 8px; text-align: center; }
+    .cell-pages{ padding: 12px 6px; white-space: nowrap; }
+    @media (min-width: 768px) {
+      .day-num { font-size: 14px; }
+      .cell-day, .cell-body, .cell-pages { padding-top: 14px; padding-bottom: 14px; }
+      .cell-body { padding-inline: 16px; }
+    }
+
+    .type-badge {
+      display: inline-block; padding: 1px 7px; border-radius: 999px;
+      font-size: 10px; font-weight: 700; line-height: 1.7; white-space: normal;
+      background: var(--bg); color: var(--fg);
+      border: 1px solid var(--bar);
+      border: 1px solid color-mix(in srgb, var(--bar) 55%, transparent);
+    }
+    .pages-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 8px;
+      font-size: 10px; font-weight: 800;
+      background: var(--bg); color: var(--fg); border: 1px solid var(--bar);
+      border: 1px solid color-mix(in srgb, var(--bar) 45%, transparent);
+    }
+    @media (min-width: 768px) { .pages-badge { font-size: 12px; } .type-badge { font-size: 11px; } }
+
+    .item-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .item-list li { display: flex; gap: 8px; align-items: flex-start; font-size: 11px; font-weight: 500; color: #292524; }
+    html.dark .item-list li { color: #e7e5e4; }
+    @media (min-width: 768px) { .item-list li { font-size: 14px; } }
+    .item-list li.plain::before {
+      content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--bar, #a8a29e); margin-top: .65em;
+    }
+    .chip {
+      flex: none; padding: 0 7px; border-radius: 6px; font-size: 10px; font-weight: 800; line-height: 1.8;
+      background: #F5F5F4; color: #57534E; border: 1px solid #E7E5E4; white-space: nowrap;
+    }
+    html.dark .chip { background:#292524; color:#d6d3d1; border-color:#3f3a36; }
+    .chip-page { background: #fff; }
+    html.dark .chip-page { background:#1c1917; }
+    .chip-review {
+      background: var(--bg, #FFF5DB); color: var(--fg, #7A4F00);
+      border: 1px solid var(--bar, #E3A008);
+      border: 1px solid color-mix(in srgb, var(--bar, #E3A008) 55%, transparent);
+    }
+
+    .partner-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;
+      padding: 7px 4px; border-radius: 10px; font-size: 10px; font-weight: 700;
+      background: #F5F5F4; color: #57534E; border: 1px solid transparent; transition: background-color .15s;
+    }
+    .partner-btn:hover { background: #E7E5E4; }
+    .partner-btn.done { background: #F2F9F5; color: #3F6251; border-color: rgba(63,98,81,.3); }
+    html.dark .partner-btn { background:#292524; color:#a8a29e; }
+    html.dark .partner-btn:hover { background:#3f3a36; }
+    html.dark .partner-btn.done { background:#1e2e26; color:#8FCBA5; border-color: rgba(143,203,165,.3); }
+    @media (min-width: 768px) { .partner-btn { font-size: 12px; } }
+
+    .phase-count {
+      flex: none; font-size: 11px; font-weight: 700; padding: 1px 9px; border-radius: 999px;
+      background: #fff; color: #57534E; border: 1px solid #E7E5E4;
+    }
+    html.dark .phase-count { background:#1c1917; color:#a8a29e; border-color:#3f3a36; }
+    .phase-count.complete { background:#F2F9F5; color:#3F6251; border-color: rgba(63,98,81,.3); }
+    html.dark .phase-count.complete { background:#1e2e26; color:#8FCBA5; border-color: rgba(143,203,165,.3); }
+
+    .legend-chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; background: var(--bg); color: var(--fg);
+      border: 1px solid var(--bar);
+      border: 1px solid color-mix(in srgb, var(--bar) 50%, transparent);
+    }
+    .legend-chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--bar); display: inline-block; }
+
+    /* ============ تبويبات ============ */
+    .tab-btn {
+      padding: 12px 6px; border-radius: 10px; font-size: 11px; font-weight: 500; color: #57534E;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      transition: background-color .15s, color .15s;
+    }
+    .tab-btn:hover { color: #1c1917; }
+    .tab-btn.active { background: #fff; color: #1c1917; font-weight: 800; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+    html.dark .tab-btn { color: #a8a29e; }
+    html.dark .tab-btn:hover { color: #fafaf9; }
+    html.dark .tab-btn.active { background:#1c1917; color:#fafaf9; }
+    .tab-count { font-size: 11px; font-weight: 500; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.7); color: #57534E; }
+    .tab-btn.active .tab-count { background: #F5F5F4; }
+    html.dark .tab-count { background: #292524; color:#a8a29e; }
+    @media (min-width: 768px) {
+      .tab-btn { flex-direction: row; gap: 8px; font-size: 14px; padding: 12px 16px; }
+    }
+
+    /* ============ بطاقات الملفات ============ */
+    .file-card {
+      display: flex; align-items: stretch; border-radius: 12px; overflow: hidden;
+      border: 1px solid #E7E5E4; background: #FAF9F6; transition: border-color .15s, background-color .15s;
+    }
+    .file-card:hover { border-color: #a8a29e; background: #fff; }
+    html.dark .file-card { background:#171412; border-color:#292524; }
+    html.dark .file-card:hover { background:#1c1917; border-color:#57534e; }
+    .file-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px; text-decoration: none; color: inherit; }
+    .file-ext {
+      flex: none; min-width: 40px; text-align: center; padding: 6px 4px; border-radius: 8px;
+      font-size: 10px; font-weight: 800; letter-spacing: .5px; direction: ltr;
+      background: #FDECEC; color: #B42318;
+    }
+    .file-ext.tg { background:#E8F4FD; color:#1D6FA5; }
+    html.dark .file-ext { background:#3a1b1b; color:#ff9b93; }
+    html.dark .file-ext.tg { background:#13293a; color:#8cc8f0; }
+    .file-dl {
+      flex: none; display: flex; align-items: center; justify-content: center; width: 40px;
+      border-inline-start: 1px solid #E7E5E4; color: #78716c; text-decoration: none;
+    }
+    .file-dl:hover { background: #F5F5F4; color: #292524; }
+    html.dark .file-dl { border-color:#292524; }
+    html.dark .file-dl:hover { background:#292524; color:#fafaf9; }
+    .file-meta { font-size: 11px; color: #a8a29e; margin-top: 2px; direction: rtl; }
+    .file-card.broken { border-color: #f1b0a8; }
+    .file-card.broken .file-meta { color: #B42318; }
+
+    /* ============ أزرار ونوافذ ============ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;
+      background: #F5F5F4; color: #44403C; border: 1px solid #E7E5E4; cursor: pointer; transition: background-color .15s;
+    }
+    .btn:hover { background: #E7E5E4; }
+    .btn-primary { background:#3F6251; color:#fff; border-color:#3F6251; }
+    .btn-primary:hover { background:#34503f; }
+    .btn-danger { background:#fff; color:#B42318; border-color:#f1b0a8; }
+    .btn-danger:hover { background:#FDECEC; }
+    html.dark .btn { background:#292524; color:#e7e5e4; border-color:#3f3a36; }
+    html.dark .btn:hover { background:#3f3a36; }
+    html.dark .btn-primary { background:#4f8a6a; border-color:#4f8a6a; color:#fff; }
+    html.dark .btn-danger { background:#1c1917; color:#ff9b93; border-color:#5c2a27; }
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 10050;
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    .overlay.dlg-overlay { z-index: 10060; align-items: center; padding: 16px; }
+    .sheet {
+      width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; background: #fff;
+      border-radius: 20px 20px 0 0; padding: 18px 16px 24px; box-shadow: 0 -8px 30px rgba(0,0,0,.2);
+    }
+    .sheet.small { border-radius: 18px; max-width: 420px; padding: 18px 16px; }
+    html.dark .sheet { background:#1c1917; }
+    @media (min-width: 640px) { .overlay { align-items: center; padding: 16px; } .sheet { border-radius: 20px; } }
+    .sheet-title { font-size: 15px; font-weight: 800; margin: 0 0 4px; color: #1c1917; }
+    html.dark .sheet-title { color:#fafaf9; }
+    .sec { border: 1px solid #E7E5E4; border-radius: 14px; padding: 12px; margin-top: 12px; background: #FAF9F6; }
+    html.dark .sec { border-color:#292524; background:#171412; }
+    .sec h4 { margin: 0 0 3px; font-size: 13px; font-weight: 800; color:#292524; }
+    html.dark .sec h4 { color:#fafaf9; }
+    .sec p.why { margin: 0 0 10px; font-size: 11.5px; line-height: 1.75; color:#78716c; }
+    html.dark .sec p.why { color:#a8a29e; }
+    .status-line { display:flex; gap:8px; font-size: 11.5px; line-height: 1.7; margin-top: 4px; color:#57534E; }
+    html.dark .status-line { color:#a8a29e; }
+    .status-line b { flex: none; min-width: 96px; color:#292524; }
+    html.dark .status-line b { color:#e7e5e4; }
+    .field {
+      width: 100%; border: 1px solid #D6D3D1; border-radius: 10px; padding: 8px 10px; font-size: 12px;
+      background: #fff; color: #292524; direction: ltr; text-align: left; font-family: ui-monospace, monospace !important;
+    }
+    html.dark .field { background:#0c0a09; color:#fafaf9; border-color:#3f3a36; }
+    .snap-row { display:flex; align-items:center; justify-content:space-between; gap:8px; padding: 8px 0; border-top: 1px solid #E7E5E4; }
+    .snap-row:first-child { border-top: 0; }
+    html.dark .snap-row { border-color:#292524; }
+    .snap-row .t { font-size: 12px; font-weight: 700; }
+    .snap-row .s { font-size: 11px; color:#78716c; }
+
+    #toast {
+      position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 10070;
+      background: #292524; color: #fff; padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;
+      display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 24px); box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    }
+    #toast button { color: #8FCBA5; font-weight: 800; font-size: 12px; background: none; border: 0; cursor: pointer; white-space: nowrap; }
+
+    /* أنيميشن صور القطط */
+    @keyframes burstOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(0deg); }
+      22% { opacity: 1; transform: translate(calc(-50% + var(--tx) * 0.65), calc(-50% + var(--ty) * 0.65)) scale(1.1) rotate(calc(var(--rot) * 0.7)); }
+      75% { opacity: 1; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0.9) rotate(var(--rot)); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--tx) * 1.2), calc(-50% + var(--ty) * 1.2 - 20px)) scale(0.4) rotate(var(--rot)); }
+    }
+    .cat-burst-transparent {
+      position: fixed; pointer-events: none; z-index: 9999; object-fit: contain;
+      animation: burstOut var(--dur, 1000ms) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
+    }
+    @keyframes sparkleOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      50% { opacity: 1; transform: translate(calc(-50% + var(--stx) * 0.7), calc(-50% + var(--sty) * 0.7)) scale(1); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--stx)), calc(-50% + var(--sty))) scale(0); }
+    }
+    .sparkle-particle {
+      position: fixed; pointer-events: none; z-index: 10000; width: 8px; height: 8px; border-radius: 50%;
+      animation: sparkleOut var(--sdur, 800ms) ease-out var(--sdelay, 0ms) forwards; box-shadow: 0 0 6px currentColor;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-burst-transparent, .sparkle-particle { display: none !important; animation: none !important; }
+    }
+
+    /* ============ DARK MODE OVERRIDES ============ */
+    html.dark { color-scheme: dark; }
+    html.dark body { background-color: #0c0a09 !important; color: #fafaf9 !important; }
+    html.dark header { background-color: #1c1917 !important; border-color: #292524 !important; }
+    html.dark .bg-white { background-color: #1c1917 !important; }
+    html.dark .bg-\[\#FAF9F6\] { background-color: #0c0a09 !important; }
+    html.dark .bg-\[\#FAF9F6\]\/95 { background-color: rgba(12,10,9,0.95) !important; }
+    html.dark .bg-stone-50 { background-color: #171412 !important; }
+    html.dark .bg-stone-100 { background-color: #292524 !important; }
+    html.dark .bg-stone-100\/90 { background-color: rgba(41,37,36,0.9) !important; }
+    html.dark .bg-stone-200 { background-color: #3f3a36 !important; }
+    html.dark .bg-stone-200\/80 { background-color: rgba(63,58,54,0.8) !important; }
+    html.dark .text-stone-900 { color: #fafaf9 !important; }
+    html.dark .text-stone-800 { color: #e7e5e4 !important; }
+    html.dark .text-stone-700 { color: #d6d3d1 !important; }
+    html.dark .text-stone-600 { color: #a8a29e !important; }
+    html.dark .text-stone-500 { color: #78716c !important; }
+    html.dark .text-stone-400 { color: #57534e !important; }
+    html.dark .border-stone-200 { border-color: #292524 !important; }
+    html.dark .border-stone-100 { border-color: #1c1917 !important; }
+    html.dark .divide-stone-100 > * + * { border-color: #292524 !important; }
+    html.dark .text-\[\#3F6251\] { color: #8FCBA5 !important; }
+  </style>
+</head>
+<body class="min-h-screen antialiased pb-16">
+
+  <!-- تنبيه عند تعذر الحفظ -->
+  <div id="storageWarn" hidden class="text-center text-xs font-bold py-2 px-3" style="background:#FDECEC;color:#B42318">
+    تعذّر الحفظ في هذا المتصفح (ربما وضع التصفح الخاص). افتح «النسخ والاسترجاع» وانسخ رمز تقدمك قبل الإغلاق.
+  </div>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="bg-white border-b border-stone-200">
+    <div class="max-w-5xl mx-auto px-4 md:px-8 py-4">
+      <div class="flex items-center justify-between gap-4">
+
+        <div class="flex items-center gap-3.5">
+          <img id="userAvatarImg"
+               src="https://t.me/i/userpic/320/RIRIHYO.jpg"
+               onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23e7e5e4%22/><text x=%2250%22 y=%2265%22 text-anchor=%22middle%22 font-size=%2245%22 fill=%22%2378716c%22>ر</text></svg>'"
+               alt="ريماس"
+               class="w-12 h-12 rounded-full object-cover border border-stone-200 bg-stone-100 flex-shrink-0">
+          <div>
+            <h1 class="text-base md:text-lg font-bold text-stone-800 leading-snug">
+              أهلاً <span id="userNameDisplay">ريماس</span>
+            </h1>
+            <p id="telegramHandleText" class="text-xs text-stone-400 font-mono dir-ltr text-right">@RIRIHYO</p>
+          </div>
+        </div>
+
+        <div class="text-left">
+          <div class="flex items-center justify-end gap-2">
+            <button id="openBackup" class="btn" style="padding:6px 10px" title="النسخ والاسترجاع">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5l8-3z"/><path d="M9 12l2 2 4-4"/></svg>
+              <span class="hidden sm:inline">النسخ والاسترجاع</span>
+            </button>
+
+            <div class="flex items-center gap-1.5 text-xs md:text-sm text-stone-600">
+              <span class="hidden sm:inline">المهام:</span>
+              <span id="progressSummaryText" class="font-bold text-stone-800">0 / 70</span>
+              <span class="font-bold text-[#3F6251]" id="progressPercentageText">(0%)</span>
+            </div>
+          </div>
+          <div class="w-24 md:w-44 bg-stone-100 rounded-full h-2 mt-1.5 overflow-hidden">
+            <div id="topProgressBar" class="bg-[#3F6251] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p class="text-[11px] text-stone-500 mt-1">
+            <span id="fullDaysText">0 يوم كامل</span>
+          </p>
+          <p id="savedAtText" class="text-[10px] text-stone-400 mt-0.5"></p>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="max-w-5xl mx-auto px-2 md:px-8 pt-5 space-y-5">
+
+    <!-- ============ الملفات ============ -->
+    <section class="bg-white rounded-2xl border border-stone-200 p-4 md:p-5">
+      <h2 class="text-xs md:text-sm font-bold text-stone-600 mb-3">اهم الملفات</h2>
+      <div id="filesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
+    </section>
+
+    <!-- ============ TABS ============ -->
+    <div class="sticky top-0 z-20 bg-[#FAF9F6]/95 backdrop-blur-sm py-2">
+      <div class="grid grid-cols-2 gap-2.5 bg-stone-200/80 p-1.5 rounded-xl" role="tablist">
+        <button id="tabVideosBtn" role="tab" aria-selected="true" class="tab-btn active">
+          <span>جدول التأسيس (المقاطع)</span>
+          <span id="videosCounter" class="tab-count">0 / 35</span>
+        </button>
+        <button id="tabExercisesBtn" role="tab" aria-selected="false" class="tab-btn">
+          <span>جدول كتاب التجميعات</span>
+          <span id="exercisesCounter" class="tab-count">0 / 35</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ دليل الألوان ============ -->
+    <div id="legend" class="flex flex-wrap gap-2 px-1" aria-label="دليل ألوان أنواع الأيام"></div>
+
+    <!-- ============ TABLES ============ -->
+    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+
+      <!-- TABLE 1: المقاطع -->
+      <table id="videosTable" class="text-right text-xs md:text-sm w-full" role="tabpanel">
+        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-[11px] md:text-xs">
+          <tr>
+            <th class="py-3 px-2 text-center font-semibold w-12">تم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-24 md:w-36">اليوم</th>
+            <th class="py-3 px-2 md:px-4 font-semibold">المقاطع اليومية</th>
+            <th class="py-3 px-2 text-center font-semibold whitespace-nowrap w-24 md:w-32">التجميعات</th>
+          </tr>
+        </thead>
+        <tbody id="videosTableBody" class="divide-y divide-stone-100"></tbody>
+      </table>
+
+      <!-- TABLE 2: كتاب التجميعات -->
+      <table id="exercisesTable" class="text-right text-xs md:text-sm w-full" role="tabpanel" hidden>
+        <thead class="bg-stone-50 border-b border-stone-200 text-stone-500 text-[11px] md:text-xs">
+          <tr>
+            <th class="py-3 px-2 text-center font-semibold w-12">تم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-24 md:w-36">اليوم</th>
+            <th class="py-3 px-2 font-semibold whitespace-nowrap w-20 md:w-28">الصفحات</th>
+            <th class="py-3 px-2 md:px-4 font-semibold">تدريبات كتاب التجميعات</th>
+            <th class="py-3 px-2 text-center font-semibold whitespace-nowrap w-24 md:w-32">المقاطع</th>
+          </tr>
+        </thead>
+        <tbody id="exercisesTableBody" class="divide-y divide-stone-100"></tbody>
+      </table>
+
+    </div>
+
+  </main>
+
+  <!-- ==================== نافذة النسخ والاسترجاع ==================== -->
+  <div id="backupOverlay" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="backupTitle">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 id="backupTitle" class="sheet-title">حفظ تقدمك واسترجاعه</h3>
+          <p class="text-[11.5px] leading-relaxed text-stone-500">تقدمك يُحفظ داخل جهازك أنت (ما فيه خادم). هذي الأدوات تحميه من الضياع وتنقله بين أجهزتك.</p>
+        </div>
+        <button id="closeBackup" class="btn" style="padding:4px 10px" aria-label="إغلاق">✕</button>
+      </div>
+
+      <div class="sec">
+        <h4>حالة الحفظ</h4>
+        <div class="status-line"><b>على هذا الجهاز</b><span id="stLocal"></span></div>
+        <div class="status-line"><b>مزامنة تيليجرام</b><span id="stCloud"></span></div>
+        <div class="status-line"><b>حماية المتصفح</b><span id="stPersist"></span></div>
+      </div>
+
+      <div class="sec">
+        <h4>١) نسخ احتياطية تلقائية</h4>
+        <p class="why">نحتفظ بآخر 6 نسخ من تقدمك (بفارق 10 دقائق على الأقل بين نسخة ونسخة). فائدتها: لو ضغطت «إعادة ضبط» بالغلط، أو علّمت أيام غلط، أو تلف الحفظ، ترجع لنسخة أقدم بضغطة وحدة.</p>
+        <div id="snapList"></div>
+      </div>
+
+      <div class="sec">
+        <h4>٢) رمز التقدم (الأسهل في تيليجرام)</h4>
+        <p class="why">رمز نصي قصير يمثل تقدمك كله. انسخه واحفظه في «الرسائل المحفوظة»، ولو غيّرت جوالك أو انمسحت بيانات المتصفح الصقه هنا ويرجع تقدمك.</p>
+        <input id="codeOut" class="field" readonly>
+        <div class="flex gap-2 mt-2"><button class="btn" id="copyCode">نسخ الرمز</button></div>
+        <textarea id="codeIn" class="field mt-3" rows="2" placeholder="الصق الرمز هنا (يبدأ بـ RM4-)"></textarea>
+        <div class="flex gap-2 mt-2"><button class="btn btn-primary" id="restoreCode">استرجاع من الرمز</button></div>
+      </div>
+
+      <div class="sec">
+        <h4>٣) ملف النسخة (تصدير / استيراد)</h4>
+        <p class="why">ملف صغير تحفظه خارج المتصفح (في الجوال أو الكمبيوتر). نفس فائدة الرمز، لكن بعض نسخ تيليجرام تمنع تنزيل الملفات، فإذا ما اشتغل استخدم الرمز.</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="btn" id="exportFile">تصدير ملف</button>
+          <button class="btn" id="importFile">استيراد ملف</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h4>إعادة ضبط التقدم</h4>
+        <p class="why">تصفّر كل العلامات. نحفظ نسخة قبلها وتقدر تتراجع فوراً.</p>
+        <button class="btn btn-danger" id="resetAll">إعادة ضبط</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" hidden></div>
+
+  <script>
+    // ============ CONFIG ============
+    const KEY_MAIN   = 'rimas_progress_v4';
+    const KEY_SNAPS  = 'rimas_progress_v4_snaps';
+    const KEY_LEGACY = ['rimas_auto_progress_v3', 'rimas_auto_progress_v3_backup'];
+    const CLOUD_KEY  = 'rp4';
+    const SNAP_MAX   = 6;
+    const SNAP_GAP   = 10 * 60 * 1000;
+    const CODE_PREFIX = 'RM4-';
+
+    const CAT_IMAGES = ['./Cat4.png'];
+
+    // الملفات: كل الملفات داخل مجلد files/ بأسماء إنجليزية بسيطة لضمان فتح الروابط في أي متصفح
+    const FILES = [
+      { title: 'كتاب التأسيس',                file: 'files/foundation.pdf',  ext: 'PDF', size: '14.2 MB', saveAs: 'كتاب التأسيس.pdf' },
+      { title: 'كتاب التجميعات',              file: 'files/collections.pdf', ext: 'PDF', size: '8.2 MB',  saveAs: 'كتاب تجميعات الدروس.pdf' },
+      { title: 'ملف القوانين للمراجعة',        file: 'files/laws.pdf',        ext: 'PDF', size: '18.8 MB', saveAs: 'القوانين.pdf' },
+      { title: 'اختبارات كويزات للتجميعات',    file: 'https://t.me/zaam_li5il', ext: 'TG', note: 't.me/zaam_li5il' }
+    ];
+
+    // ============ DATA ============
+    const DAYS = [{"day":1,"phaseId":1,"phaseTitle":"الأسبوع الأول: المقاطع (1 - 10) | الحساب والكسور والعشري","type":"دراسة وتأسيس","videos":["فيديو 1: العمليات على الأعداد (1)","فيديو 2: العمليات على الأعداد (2)"],"videosDetail":"• فيديو 1: العمليات على الأعداد (1) • فيديو 2: العمليات على الأعداد (2)","exercises":"ص 5 - 6 (العمليات على الأعداد: الأسئلة 1 - 30)","exercisesPages":"ص 5 - 6"},{"day":2,"phaseId":1,"phaseTitle":"الأسبوع الأول: المقاطع (1 - 10) | الحساب والكسور والعشري","type":"دراسة وتأسيس","videos":["فيديو 3: قابلية القسمة","فيديو 4: الأعداد الأولية"],"videosDetail":"• فيديو 3: قابلية القسمة • فيديو 4: الأعداد الأولية","exercises":"ص 7 - 8 (قابلية القسمة والأعداد الأولية: الأسئلة 1 - 29)","exercisesPages":"ص 7 - 8"},{"day":3,"phaseId":1,"phaseTitle":"الأسبوع الأول: المقاطع (1 - 10) | الحساب والكسور والعشري","type":"دراسة وتأسيس","videos":["فيديو 5: الكسور (1)","فيديو 6: الكسور (2)"],"videosDetail":"• فيديو 5: الكسور (1) • فيديو 6: الكسور (2)","exercises":"ص 9 - 12 (الكسور: الأسئلة 1 - 45)","exercisesPages":"ص 9 - 12"},{"day":4,"phaseId":1,"phaseTitle":"الأسبوع الأول: المقاطع (1 - 10) | الحساب والكسور والعشري","type":"دراسة وتأسيس","videos":["فيديو 7: الكسور (3)","فيديو 8: الأعداد العشرية (1)"],"videosDetail":"• فيديو 7: الكسور (3) • فيديو 8: الأعداد العشرية (1)","exercises":"ص 13 - 16 (إكمال الكسور: الأسئلة 46 - 94)","exercisesPages":"ص 13 - 16"},{"day":5,"phaseId":1,"phaseTitle":"الأسبوع الأول: المقاطع (1 - 10) | الحساب والكسور والعشري","type":"دراسة وتأسيس","videos":["فيديو 9: الأعداد العشرية (2)","فيديو 10: الأسس (1)"],"videosDetail":"• فيديو 9: الأعداد العشرية (2) • فيديو 10: الأسس (1)","exercises":"ص 17 - 19 (الأعداد العشرية: الأسئلة 1 - 40)","exercisesPages":"ص 17 - 19"},{"day":6,"phaseId":1,"phaseTitle":"الأسبوع الأول: المقاطع (1 - 10) | الحساب والكسور والعشري","type":"مراجعة دورية (1)","videos":["مراجعة المقاطع (1 - 10)","فيديو 11: الأسس (2)"],"videosDetail":"• مراجعة المقاطع (1 - 10) • مقطع تأسيس: فيديو 11: الأسس (2)","exercises":"ص 20 - 21 (الأسس: الأسئلة 1 - 25) + مراجعة أخطاء الكسور والعشري","exercisesPages":"ص 20 - 21"},{"day":7,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"دراسة وتأسيس","videos":["فيديو 12: الأسس (3)","فيديو 13: الجذور (1)"],"videosDetail":"• فيديو 12: الأسس (3) • فيديو 13: الجذور (1)","exercises":"ص 22 - 23 (إكمال الأسس 26 - 61) + ص 24 - 25 (الجذور 1 - 25)","exercisesPages":"ص 22 - 25"},{"day":8,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"دراسة وتأسيس","videos":["فيديو 14: الجذور (2)","فيديو 15: الجذور (3)"],"videosDetail":"• فيديو 14: الجذور (2) • فيديو 15: الجذور (3)","exercises":"ص 26 - 30 (إكمال الجذور: الأسئلة 26 - 80)","exercisesPages":"ص 26 - 30"},{"day":9,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"دراسة وتأسيس","videos":["فيديو 16: الفرق بين مربعين","فيديو 17: القاسم والمضاعف (نهاية الباب 1)"],"videosDetail":"• فيديو 16: الفرق بين مربعين • فيديو 17: القاسم والمضاعف (نهاية الباب 1)","exercises":"ص 31 (الفرق بين مربعين 1 - 15) + ص 32 - 34 (القاسم والمضاعف والمعادلات 16 - 66)","exercisesPages":"ص 31 - 34"},{"day":10,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"مراجعة الباب الأول","videos":["مراجعة شاملة للباب الأول (الحساب والجبر الأساسي)"],"videosDetail":"مراجعة شاملة للباب الأول (الحساب والجبر الأساسي)","exercises":"تثبيت القوانين وحل بنك الأخطاء والمسائل المؤجلة من ص 5 إلى 34","exercisesPages":"ص 5 - 34"},{"day":11,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"دراسة وتأسيس","videos":["فيديو 18: النسبة والتناسب (1)","فيديو 19: النسبة والتناسب (2)"],"videosDetail":"• فيديو 18: النسبة والتناسب (1) • فيديو 19: النسبة والتناسب (2)","exercises":"ص 36 - 37 (النسبة والتناسب: الأسئلة 1 - 30)","exercisesPages":"ص 36 - 37"},{"day":12,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"دراسة وتأسيس","videos":["فيديو 20: النسبة والتناسب (3)","فيديو 21: النسبة المئوية"],"videosDetail":"• فيديو 20: النسبة والتناسب (3) • فيديو 21: النسبة المئوية","exercises":"ص 38 (إكمال التناسب 31 - 45) + ص 39 - 40 (النسبة المئوية 1 - 25)","exercisesPages":"ص 38 - 40"},{"day":13,"phaseId":2,"phaseTitle":"الأسبوع الثاني: المقاطع (11 - 20) | ختام الجبر وبداية النسب","type":"مراجعة دورية (2)","videos":["مراجعة المقاطع (11 - 20)","فيديو 22: الربح والخسارة (1)"],"videosDetail":"• مراجعة المقاطع (11 - 20) • مقطع تأسيس: فيديو 22: الربح والخسارة (1)","exercises":"ص 40 - 41 (إكمال النسبة المئوية 26 - 44) + مراجعة أخطاء الجذور والتناسب","exercisesPages":"ص 40 - 41"},{"day":14,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"دراسة وتأسيس","videos":["فيديو 23: الربح والخسارة (2)","فيديو 24: استراتيجيات القدرات (1)"],"videosDetail":"• فيديو 23: الربح والخسارة (2) • فيديو 24: استراتيجيات القدرات (1)","exercises":"ص 42 - 43 (الربح والخسارة: 1 - 28) + ص 44 (استراتيجيات القدرات 1 - 15)","exercisesPages":"ص 42 - 44"},{"day":15,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"دراسة وتأسيس","videos":["فيديو 25: استراتيجيات القدرات (2) (نهاية الباب 2)"],"videosDetail":"• فيديو 25: استراتيجيات القدرات (2) (نهاية الباب 2)","exercises":"ص 45 - 46 (إكمال استراتيجيات القدرات: الأسئلة 16 - 42)","exercisesPages":"ص 45 - 46"},{"day":16,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"مراجعة الباب الثاني","videos":["مراجعة شاملة للباب الثاني (النسب والمصروفات)"],"videosDetail":"مراجعة شاملة للباب الثاني (النسب والمصروفات)","exercises":"مراجعة قوانين التخفيض والربح وحل أسئلة التجميعات المؤجلة (ص 36 - 46)","exercisesPages":"ص 36 - 46"},{"day":17,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"دراسة وتأسيس","videos":["فيديو 26: الحركة (1)","فيديو 27: الحركة (2)"],"videosDetail":"• فيديو 26: الحركة (1) • فيديو 27: الحركة (2)","exercises":"ص 48 - 50 (الحركة: الأسئلة 1 - 37)","exercisesPages":"ص 48 - 50"},{"day":18,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"دراسة وتأسيس","videos":["فيديو 28: قوانين هامة (1)","فيديو 29: قوانين هامة (2)"],"videosDetail":"• فيديو 28: قوانين هامة (1) • فيديو 29: قوانين هامة (2)","exercises":"ص 51 - 52 (قوانين هامة: الأسئلة 1 - 27)","exercisesPages":"ص 51 - 52"},{"day":19,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"دراسة وتأسيس","videos":["فيديو 30: الزاوية بين العقربين والساعة (1)","فيديو 31: الزاوية بين العقربين والساعة (2) (نهاية الباب 3)"],"videosDetail":"• فيديو 30: الزاوية بين العقربين والساعة (1) • فيديو 31: الزاوية بين العقربين والساعة (2) (نهاية الباب 3)","exercises":"ص 53 - 55 (الساعات والأيام والمتتابعات: الأسئلة 1 - 45)","exercisesPages":"ص 53 - 55"},{"day":20,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"مراجعة دورية (3)","videos":["مراجعة المقاطع (21 - 30)","فيديو 32: المتوسط الحسابي (1)"],"videosDetail":"• مراجعة المقاطع (21 - 30) • مقطع تأسيس: فيديو 32: المتوسط الحسابي (1)","exercises":"ص 57 (المتوسط الحسابي: الأسئلة 1 - 15) + مراجعة أخطاء الباب الثالث","exercisesPages":"ص 57"},{"day":21,"phaseId":3,"phaseTitle":"الأسبوع الثالث: المقاطع (21 - 30) | ختام النسب والمسائل الحياتية والحركة","type":"مراجعة الباب الثالث","videos":["مراجعة شاملة للباب الثالث (الحركة والمسائل المتنوعة)"],"videosDetail":"مراجعة شاملة للباب الثالث (الحركة والمسائل المتنوعة)","exercises":"مراجعة قوانين السرعات والمسافات وزوايا الساعات والدوريات (ص 48 - 55)","exercisesPages":"ص 48 - 55"},{"day":22,"phaseId":4,"phaseTitle":"الأسبوع الرابع: المقاطع (31 - 40) | الإحصاء والاحتمالات ومدخل الهندسة","type":"دراسة وتأسيس","videos":["فيديو 33: المتوسط الحسابي (2)","فيديو 34: الاحتمالات والإحصاء (نهاية الباب 4)"],"videosDetail":"• فيديو 33: المتوسط الحسابي (2) • فيديو 34: الاحتمالات والإحصاء (نهاية الباب 4)","exercises":"ص 58 (إكمال المتوسط 16 - 28) + ص 59 (الاحتمالات والإحصاء: 1 - 15)","exercisesPages":"ص 58 - 59"},{"day":23,"phaseId":4,"phaseTitle":"الأسبوع الرابع: المقاطع (31 - 40) | الإحصاء والاحتمالات ومدخل الهندسة","type":"مراجعة الباب الرابع","videos":["مراجعة شاملة للباب الرابع (الإحصاء والاحتمالات)"],"videosDetail":"مراجعة شاملة للباب الرابع (الإحصاء والاحتمالات)","exercises":"مراجعة مقاييس النزعة المركزية والتباديل والتوافيق ومسائل ص 57 - 59","exercisesPages":"ص 57 - 59"},{"day":24,"phaseId":4,"phaseTitle":"الأسبوع الرابع: المقاطع (31 - 40) | الإحصاء والاحتمالات ومدخل الهندسة","type":"دراسة وتأسيس","videos":["فيديو 35: الزوايا والمضلعات والمستقيمات (1)","فيديو 36: الزوايا والمضلعات والمستقيمات (2)"],"videosDetail":"• فيديو 35: الزوايا والمضلعات والمستقيمات (1) • فيديو 36: الزوايا والمضلعات والمستقيمات (2)","exercises":"ص 61 - 63 (الزوايا والمضلعات: الأسئلة 1 - 35)","exercisesPages":"ص 61 - 63"},{"day":25,"phaseId":4,"phaseTitle":"الأسبوع الرابع: المقاطع (31 - 40) | الإحصاء والاحتمالات ومدخل الهندسة","type":"دراسة وتأسيس","videos":["فيديو 37: المثلث (1)","فيديو 38: المثلث (2)"],"videosDetail":"• فيديو 37: المثلث (1) • فيديو 38: المثلث (2)","exercises":"ص 64 - 66 (إكمال الزوايا 36 - 60) + ص 67 - 69 (المثلث 1 - 25)","exercisesPages":"ص 64 - 69"},{"day":26,"phaseId":4,"phaseTitle":"الأسبوع الرابع: المقاطع (31 - 40) | الإحصاء والاحتمالات ومدخل الهندسة","type":"دراسة وتأسيس","videos":["فيديو 39: المثلث (3)","فيديو 40: المثلث (4)"],"videosDetail":"• فيديو 39: المثلث (3) • فيديو 40: المثلث (4)","exercises":"ص 70 - 73 (إكمال المثلث: الأسئلة 26 - 67)","exercisesPages":"ص 70 - 73"},{"day":27,"phaseId":4,"phaseTitle":"الأسبوع الرابع: المقاطع (31 - 40) | الإحصاء والاحتمالات ومدخل الهندسة","type":"مراجعة دورية (4)","videos":["مراجعة المقاطع (31 - 40)","فيديو 41: الأشكال الرباعية"],"videosDetail":"• مراجعة المقاطع (31 - 40) • مقطع تأسيس: فيديو 41: الأشكال الرباعية","exercises":"ص 74 - 75 (المستطيل: الأسئلة 1 - 23) + مراجعة أخطاء المثلثات والإحصاء","exercisesPages":"ص 74 - 75"},{"day":28,"phaseId":5,"phaseTitle":"الأسبوع الخامس: المقاطع (41 - 50) | الهندسة المتقدمة والختام","type":"دراسة وتأسيس","videos":["فيديو 42: المربع","فيديو 43: المعين ومتوازي الأضلاع وشبه المنحرف (1)"],"videosDetail":"• فيديو 42: المربع • فيديو 43: المعين ومتوازي الأضلاع وشبه المنحرف (1)","exercises":"ص 76 - 77 (المربع: الأسئلة 1 - 21) + ص 78 (المعين وشبه المنحرف 1 - 10)","exercisesPages":"ص 76 - 78"},{"day":29,"phaseId":5,"phaseTitle":"الأسبوع الخامس: المقاطع (41 - 50) | الهندسة المتقدمة والختام","type":"دراسة وتأسيس","videos":["فيديو 44: المعين ومتوازي الأضلاع وشبه المنحرف (2)","فيديو 45: الدائرة (1)"],"videosDetail":"• فيديو 44: المعين ومتوازي الأضلاع وشبه المنحرف (2) • فيديو 45: الدائرة (1)","exercises":"ص 79 (إكمال المعين 11 - 19) + ص 80 - 81 (الدائرة: الأسئلة 1 - 18)","exercisesPages":"ص 79 - 81"},{"day":30,"phaseId":5,"phaseTitle":"الأسبوع الخامس: المقاطع (41 - 50) | الهندسة المتقدمة والختام","type":"دراسة وتأسيس","videos":["فيديو 46: الدائرة (2)","فيديو 47: الدائرة (3)"],"videosDetail":"• فيديو 46: الدائرة (2) • فيديو 47: الدائرة (3)","exercises":"ص 82 - 83 (إكمال الدائرة: الأسئلة 19 - 34)","exercisesPages":"ص 82 - 83"},{"day":31,"phaseId":5,"phaseTitle":"الأسبوع الخامس: المقاطع (41 - 50) | الهندسة المتقدمة والختام","type":"دراسة وتأسيس","videos":["فيديو 48: الدائرة (4)","فيديو 49: المجسمات والحجوم"],"videosDetail":"• فيديو 48: الدائرة (4) • فيديو 49: المجسمات والحجوم","exercises":"ص 84 (المجسمات والحجوم: الأسئلة 1 - 11)","exercisesPages":"ص 84"},{"day":32,"phaseId":5,"phaseTitle":"الأسبوع الخامس: المقاطع (41 - 50) | الهندسة المتقدمة والختام","type":"مراجعة دورية (5)","videos":["مراجعة المقاطع (41 - 50)","فيديو 50: تكملة المجسمات والحجوم + هندسة الإحداثيات (ختام المقاطع)"],"videosDetail":"• مراجعة المقاطع (41 - 50) • مقطع تأسيس: فيديو 50: تكملة المجسمات والحجوم + هندسة الإحداثيات (ختام المقاطع)","exercises":"استكمال وتصفية بنك الأسئلة الهندسية بالكامل","exercisesPages":"بنك الأسئلة"},{"day":33,"phaseId":5,"phaseTitle":"الأسبوع الخامس: المقاطع (41 - 50) | الهندسة المتقدمة والختام","type":"مراجعة الباب الخامس","videos":["مراجعة شاملة للباب الخامس (الهندسة)"],"videosDetail":"مراجعة شاملة للباب الخامس (الهندسة)","exercises":"مراجعة قوانين المساحات والمحيطات والمجسمات والزوايا (ص 61 - 84)","exercisesPages":"ص 61 - 84"},{"day":34,"phaseId":6,"phaseTitle":"الأسبوع السادس: المراجعة الشاملة النهائية","type":"مراجعة شاملة للكتاب والقوانين (1)","videos":["مراجعة قوانين الأبواب (1، 2، 3): الجبر، الحساب، النسب، الحركة والمسائل الحياتية"],"videosDetail":"مراجعة قوانين الأبواب (1، 2، 3): الجبر، الحساب، النسب، الحركة والمسائل الحياتية","exercises":"• سرد وتثبيت قوانين الأسس، الجذور، المتطابقات، التناسب، التخفيض، السرعات، وزوايا الساعة. • إعادة حل الأسئلة المحددة بنجمة في الأبواب الثلاثة الأولى.","exercisesPages":"الأبواب 1، 2، 3"},{"day":35,"phaseId":6,"phaseTitle":"الأسبوع السادس: المراجعة الشاملة النهائية","type":"مراجعة شاملة للكتاب والقوانين (2)","videos":["مراجعة قوانين البابين (4، 5): الإحصاء، الاحتمالات، الهندسة، الحجوم والمجسمات"],"videosDetail":"مراجعة قوانين البابين (4، 5): الإحصاء، الاحتمالات، الهندسة، الحجوم والمجسمات","exercises":"• مراجعة القوانين الهندسية (المثلثات الخاصة، المربع، الدائرة، الأشكال الرباعية، الحجوم، والتباديل). • تصفية بنك أخطاء الهندسة والإحصاء وحل اختبار تجريبي شامل.","exercisesPages":"البابين 4 و 5"}];
+    const N = DAYS.length;
+
+    // ============ STATE ============
+    let progress = {};
+    let updatedAt = 0;
+    let lastSavedAt = 0;
+    let storageOk = true;
+    let persistState = 'unknown';   // unknown | yes | no
+    let cloudState = 'idle';        // idle | ok | err | na
+    let currentTab = 'videos';
+    let tg = null;
+    let cloudTimer = null;
+
+    // ============ HELPERS ============
+    const SVG_ARROW_LEFT = `<svg class="w-3.5 h-3.5 inline-block flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>`;
+    const SVG_CHECK = `<svg class="w-3.5 h-3.5 inline-block flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+    const SVG_DOWNLOAD = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+    const SVG_OPEN = `<svg class="w-4 h-4 text-stone-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>`;
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function fmtDate(ms) {
+      if (!ms) return '—';
+      try {
+        return new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ms));
+      } catch (e) { return new Date(ms).toLocaleString(); }
+    }
+
+    // نوع اليوم → فئة اللون
+    function catOf(type) {
+      if (type.startsWith('مراجعة شاملة')) return 'final';
+      if (type.startsWith('مراجعة الباب')) return 'chapter';
+      if (type.startsWith('مراجعة')) return 'periodic';
+      return 'study';
+    }
+    function shortType(type) {
+      if (type.startsWith('دراسة')) return 'دراسة وتأسيس';
+      return type.replace('مراجعة شاملة للكتاب والقوانين', 'مراجعة شاملة');
+    }
+    const CAT_LABELS = { study: 'دراسة وتأسيس', periodic: 'مراجعة دورية', chapter: 'مراجعة باب', final: 'مراجعة شاملة' };
+
+    // ============ ENCODE / DECODE (رمز مضغوط للتقدم) ============
+    function encode(p) {
+      return DAYS.map(d => { const x = p[d.day] || {}; return String((x.v ? 1 : 0) + (x.e ? 2 : 0)); }).join('');
+    }
+    function decode(c) {
+      if (typeof c !== 'string') return null;
+      c = c.trim();
+      if (c.length !== N || !/^[0-3]+$/.test(c)) return null;
+      const p = {};
+      DAYS.forEach((d, i) => { const n = +c[i]; if (n) p[d.day] = { v: !!(n & 1), e: !!(n & 2) }; });
+      return p;
+    }
+    function fromObject(obj) {           // للنسخ القديمة (v3) وملفات الاستيراد
+      const p = {};
+      if (!obj || typeof obj !== 'object') return p;
+      DAYS.forEach(d => {
+        const x = obj[d.day];
+        if (x && (x.v || x.e)) p[d.day] = { v: !!x.v, e: !!x.e };
+      });
+      return p;
+    }
+    function countDone(p) {
+      let n = 0;
+      DAYS.forEach(d => { const x = p[d.day]; if (x) { if (x.v) n++; if (x.e) n++; } });
+      return n;
+    }
+    function mergeProgress(a, b) {
+      const out = {};
+      DAYS.forEach(d => {
+        const x = a[d.day] || {}, y = b[d.day] || {};
+        const v = !!(x.v || y.v), e = !!(x.e || y.e);
+        if (v || e) out[d.day] = { v, e };
+      });
+      return out;
+    }
+    function codeFor(p) {
+      const c = encode(p);
+      return CODE_PREFIX + c.match(/.{1,7}/g).join('-');
+    }
+    function parseCode(text) {
+      const t = String(text || '').trim();
+      if (!/^RM4-/i.test(t)) return null;
+      return decode(t.slice(CODE_PREFIX.length).replace(/[\s-]/g, ''));
+    }
+
+    // ============ STORAGE ============
+    function readRecord(key) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const r = JSON.parse(raw);
+        if (r && decode(r.c)) return { t: +r.t || 0, c: r.c };
+      } catch (e) {}
+      return null;
+    }
+    function writeStore(key, value) {
+      try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
+    }
+    function readSnaps() {
+      try {
+        const a = JSON.parse(localStorage.getItem(KEY_SNAPS) || '[]');
+        return Array.isArray(a) ? a.filter(s => s && typeof s.t === 'number' && decode(s.c)) : [];
+      } catch (e) { return []; }
+    }
+    function pushSnap(rec, why, force) {
+      if (!rec || !decode(rec.c)) return;
+      const snaps = readSnaps();
+      const last = snaps[0];
+      if (last && last.c === rec.c) return;
+      if (!force && last && (rec.t - last.t) < SNAP_GAP) return;
+      snaps.unshift({ t: force ? Date.now() : (rec.t || Date.now()), c: rec.c, why: why || 'auto' });
+      snaps.length = Math.min(snaps.length, SNAP_MAX);
+      writeStore(KEY_SNAPS, JSON.stringify(snaps));
+    }
+    function currentRecord() { return { t: updatedAt || Date.now(), c: encode(progress) }; }
+
+    // يرجع مصدر التحميل: main | snapshot | legacy | null
+    function loadLocal() {
+      let rec = readRecord(KEY_MAIN), source = rec ? 'main' : null;
+      if (!rec) {
+        const snaps = readSnaps();
+        if (snaps.length) { rec = snaps[0]; source = 'snapshot'; }
+      }
+      if (!rec) {
+        for (const k of KEY_LEGACY) {
+          try {
+            const raw = localStorage.getItem(k);
+            if (!raw) continue;
+            const p = fromObject(JSON.parse(raw));
+            rec = { t: 0, c: encode(p) };
+            source = 'legacy';
+            break;
+          } catch (e) {}
+        }
+      }
+      if (rec) { progress = decode(rec.c) || {}; updatedAt = rec.t || 0; lastSavedAt = rec.t || 0; }
+      return source;
+    }
+
+    function saveProgress() {
+      const prev = readRecord(KEY_MAIN);
+      if (prev) pushSnap(prev, 'auto', false);
+      updatedAt = Date.now();
+      storageOk = writeStore(KEY_MAIN, JSON.stringify({ v: 4, t: updatedAt, c: encode(progress) }));
+      if (storageOk) lastSavedAt = updatedAt;
+      updateStats();
+      updateSaveStatus();
+      scheduleCloudPush();
+    }
+
+    // ============ TELEGRAM CLOUD ============
+    function cloudAvailable() {
+      return !!(tg && tg.CloudStorage && typeof tg.isVersionAtLeast === 'function' && tg.isVersionAtLeast('6.9'));
+    }
+    function cloudGet(k) {
+      return new Promise(res => { try { tg.CloudStorage.getItem(k, (err, v) => res(err ? null : v)); } catch (e) { res(null); } });
+    }
+    function cloudSet(k, v) {
+      return new Promise(res => { try { tg.CloudStorage.setItem(k, v, (err, ok) => res(!err && !!ok)); } catch (e) { res(false); } });
+    }
+    async function pushCloud() {
+      if (!cloudAvailable() || !updatedAt) return;
+      const ok = await cloudSet(CLOUD_KEY, JSON.stringify({ t: updatedAt, c: encode(progress) }));
+      cloudState = ok ? 'ok' : 'err';
+      updateSaveStatus();
+    }
+    function scheduleCloudPush() {
+      if (!cloudAvailable()) return;
+      clearTimeout(cloudTimer);
+      cloudTimer = setTimeout(pushCloud, 700);
+    }
+    async function syncFromCloud() {
+      if (!cloudAvailable()) { cloudState = 'na'; updateSaveStatus(); return; }
+      const raw = await cloudGet(CLOUD_KEY);
+      let cp = null;
+      try { const o = raw ? JSON.parse(raw) : null; if (o && decode(o.c)) cp = { t: +o.t || 0, c: o.c }; } catch (e) {}
+      const localCode = encode(progress);
+      if (cp && cp.c !== localCode && cp.t > updatedAt) {
+        if (countDone(progress) > 0) pushSnap(currentRecord(), 'قبل المزامنة', true);
+        progress = decode(cp.c);
+        updatedAt = cp.t;
+        lastSavedAt = cp.t;
+        storageOk = writeStore(KEY_MAIN, JSON.stringify({ v: 4, t: updatedAt, c: cp.c }));
+        renderTables();
+        updateStats();
+        toast('تمت مزامنة تقدمك من حسابك في تيليجرام');
+        cloudState = 'ok';
+      } else if (!cp || updatedAt > cp.t) {
+        await pushCloud();
+      } else {
+        cloudState = 'ok';
+      }
+      updateSaveStatus();
+    }
+
+    // ============ SAVE STATUS UI ============
+    function updateSaveStatus() {
+      const warn = document.getElementById('storageWarn');
+      if (warn) warn.hidden = storageOk;
+      const t = document.getElementById('savedAtText');
+      if (t) t.textContent = storageOk ? (lastSavedAt ? '✓ محفوظ تلقائياً' : '') : '⚠ غير محفوظ';
+
+      const L = document.getElementById('stLocal');
+      if (!L) return;
+      L.textContent = !storageOk ? '⚠ تعذّر الحفظ في هذا المتصفح — استخدم الرمز أو الملف'
+        : (lastSavedAt ? `✓ محفوظ — آخر حفظ ${fmtDate(lastSavedAt)}` : 'يبدأ الحفظ مع أول علامة تضعها');
+      document.getElementById('stCloud').textContent =
+        cloudState === 'ok'  ? '✓ مفعّلة — تقدمك ينتقل بين أجهزتك المرتبطة بحسابك' :
+        cloudState === 'err' ? '⚠ تعذّرت المزامنة الآن، سنعيد المحاولة عند الحفظ التالي' :
+        cloudState === 'na'  ? 'غير متاحة هنا — افتح الصفحة من داخل تيليجرام لتفعيلها' : 'جارٍ التحقق…';
+      document.getElementById('stPersist').textContent =
+        persistState === 'yes' ? '✓ المتصفح التزم بعدم مسح بياناتك تلقائياً' :
+        persistState === 'no'  ? 'غير مضمونة — قد يمسح المتصفح البيانات عند امتلاء المساحة، فاحتفظ برمز أو ملف' : 'غير معروفة على هذا المتصفح';
+    }
+
+    // ============ TOAST & DIALOG ============
+    let toastTimer = null;
+    function toast(msg, opts) {
+      opts = opts || {};
+      const el = document.getElementById('toast');
+      el.innerHTML = `<span>${esc(msg)}</span>`;
+      if (opts.actionLabel) {
+        const b = document.createElement('button');
+        b.textContent = opts.actionLabel;
+        b.onclick = () => { el.hidden = true; clearTimeout(toastTimer); opts.onAction && opts.onAction(); };
+        el.appendChild(b);
+      }
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, opts.ms || 4500);
+    }
+
+    function dialog({ title, body, buttons }) {
+      return new Promise(resolve => {
+        const ov = document.createElement('div');
+        ov.className = 'overlay dlg-overlay';
+        ov.innerHTML = `<div class="sheet small" role="alertdialog" aria-modal="true">
+          <h3 class="sheet-title">${esc(title)}</h3>
+          <div class="text-xs leading-relaxed text-stone-600">${body}</div>
+          <div class="flex flex-wrap gap-2 mt-4 justify-end"></div></div>`;
+        const bar = ov.querySelector('.flex.flex-wrap');
+        const close = v => { ov.remove(); resolve(v); };
+        buttons.forEach(b => {
+          const el = document.createElement('button');
+          el.className = 'btn ' + (b.cls || '');
+          el.textContent = b.label;
+          el.onclick = () => close(b.value);
+          bar.appendChild(el);
+        });
+        ov.addEventListener('click', e => { if (e.target === ov) close(null); });
+        document.body.appendChild(ov);
+      });
+    }
+
+    // ============ PROGRESS ACTIONS ============
+    function applyProgress(newProgress, message) {
+      const before = progress;
+      if (countDone(before) > 0) pushSnap(currentRecord(), 'قبل التغيير', true);
+      progress = newProgress;
+      saveProgress();
+      renderTables();
+      renderBackupModal();
+      toast(message, {
+        ms: 9000, actionLabel: 'تراجع',
+        onAction: () => { progress = before; saveProgress(); renderTables(); renderBackupModal(); toast('تم التراجع'); }
+      });
+    }
+
+    async function doReset() {
+      const done = countDone(progress);
+      const ok = await dialog({
+        title: 'إعادة ضبط كل التقدم؟',
+        body: `سيتم تصفير ${done} مهمة منجزة. نحفظ نسخة قبل التصفير وتقدر تتراجع بعدها مباشرة أو من قائمة النسخ.`,
+        buttons: [{ label: 'إلغاء', value: false }, { label: 'نعم، صفّر', value: true, cls: 'btn-danger' }]
+      });
+      if (ok) applyProgress({}, 'تمت إعادة الضبط');
+    }
+
+    async function askImport(incoming, sourceLabel) {
+      const cur = countDone(progress), inc = countDone(incoming);
+      if (encode(incoming) === encode(progress)) { toast('هذا نفس تقدمك الحالي'); return; }
+      const choice = await dialog({
+        title: 'استيراد التقدم',
+        body: `${esc(sourceLabel)} فيه <b>${inc}</b> مهمة منجزة، وتقدمك الحالي <b>${cur}</b>.<br><br>
+               <b>دمج:</b> يحتفظ بكل ما أنجزته في الاثنين (الأنسب لو تستخدم أكثر من جهاز).<br>
+               <b>استبدال:</b> يصير تقدمك مطابقاً للنسخة المستوردة تماماً.`,
+        buttons: [
+          { label: 'إلغاء', value: null },
+          { label: 'استبدال', value: 'replace' },
+          { label: 'دمج (موصى به)', value: 'merge', cls: 'btn-primary' }
+        ]
+      });
+      if (choice === 'merge') applyProgress(mergeProgress(progress, incoming), 'تم دمج التقدم');
+      else if (choice === 'replace') applyProgress(incoming, 'تم استبدال التقدم');
+    }
+
+    function parseImportText(text) {
+      const byCode = parseCode(text);
+      if (byCode) return byCode;
+      try {
+        const o = JSON.parse(text);
+        if (o && o.code) { const p = parseCode(o.code); if (p) return p; }
+        if (o && o.progress && typeof o.progress === 'object') return fromObject(o.progress);   // يدعم ملفات النسخة 3
+      } catch (e) {}
+      return null;
+    }
+
+    function exportFile() {
+      const data = { app: 'rimas', version: 4, exportedAt: new Date().toISOString(), code: codeFor(progress), progress };
+      try {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rimas-progress-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        toast('جهّزنا الملف. لو ما نزل (تيليجرام أحياناً يمنع) استخدم «نسخ الرمز».', { ms: 7000 });
+      } catch (e) { toast('تعذّر تجهيز الملف، استخدم «نسخ الرمز».'); }
+    }
+
+    function importFile() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json,text/plain';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const p = parseImportText(String(ev.target.result || ''));
+          if (!p) { toast('الملف غير صالح'); return; }
+          askImport(p, 'الملف');
+        };
+        reader.onerror = () => toast('تعذّرت قراءة الملف');
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    async function copyText(text) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
+
+    // ============ BACKUP MODAL ============
+    function renderBackupModal() {
+      updateSaveStatus();
+      document.getElementById('codeOut').value = codeFor(progress);
+      const list = document.getElementById('snapList');
+      const snaps = readSnaps();
+      if (!snaps.length) {
+        list.innerHTML = '<p class="text-[11.5px] text-stone-500">لا توجد نسخ بعد — تظهر بعد أول تقدم تسجله.</p>';
+        return;
+      }
+      const whyLabel = w => w === 'auto' ? 'نسخة تلقائية' : esc(w);
+      list.innerHTML = snaps.map((s, i) => `
+        <div class="snap-row">
+          <div><div class="t">${fmtDate(s.t)}</div><div class="s">${countDone(decode(s.c))} مهمة منجزة · ${whyLabel(s.why)}</div></div>
+          <button class="btn" data-restore="${i}">استرجاع</button>
+        </div>`).join('');
+    }
+
+    function openBackup() {
+      renderBackupModal();
+      document.getElementById('backupOverlay').hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function closeBackup() {
+      document.getElementById('backupOverlay').hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    async function restoreSnapshot(i) {
+      const s = readSnaps()[i];
+      if (!s) return;
+      const p = decode(s.c);
+      const ok = await dialog({
+        title: 'استرجاع هذه النسخة؟',
+        body: `نسخة ${esc(fmtDate(s.t))} فيها <b>${countDone(p)}</b> مهمة منجزة. سيحل تقدمها محل تقدمك الحالي (<b>${countDone(progress)}</b>)، وتبقى حالتك الحالية محفوظة للرجوع إليها.`,
+        buttons: [{ label: 'إلغاء', value: false }, { label: 'استرجاع', value: true, cls: 'btn-primary' }]
+      });
+      if (ok) applyProgress(p, 'تم الاسترجاع');
+    }
+
+    function bindBackupUI() {
+      document.getElementById('openBackup').onclick = openBackup;
+      document.getElementById('closeBackup').onclick = closeBackup;
+      document.getElementById('backupOverlay').addEventListener('click', e => { if (e.target.id === 'backupOverlay') closeBackup(); });
+      document.getElementById('resetAll').onclick = doReset;
+      document.getElementById('exportFile').onclick = exportFile;
+      document.getElementById('importFile').onclick = importFile;
+      document.getElementById('copyCode').onclick = async () => {
+        toast(await copyText(codeFor(progress)) ? 'تم نسخ الرمز' : 'تعذّر النسخ — حدد الرمز وانسخه يدوياً');
+      };
+      document.getElementById('restoreCode').onclick = () => {
+        const txt = document.getElementById('codeIn').value;
+        const p = parseCode(txt);
+        if (!p) { toast('الرمز غير صحيح — تأكد أنه يبدأ بـ RM4- وأنه منسوخ كاملاً'); return; }
+        document.getElementById('codeIn').value = '';
+        askImport(p, 'الرمز');
+      };
+      document.getElementById('snapList').addEventListener('click', e => {
+        const b = e.target.closest('[data-restore]');
+        if (b) restoreSnapshot(+b.dataset.restore);
+      });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBackup(); });
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') pushCloud(); });
+    }
+
+    // ============ TELEGRAM ============
+    function initTelegram() {
+      if (!window.Telegram || !window.Telegram.WebApp) {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.classList.add('dark');
+        return;
+      }
+      tg = window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+
+      const applyTheme = () => { document.documentElement.classList.toggle('dark', tg.colorScheme === 'dark'); };
+      applyTheme();
+      tg.onEvent('themeChanged', applyTheme);
+
+      const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+      if (u) {
+        if (u.first_name) document.getElementById('userNameDisplay').textContent = u.first_name;
+        if (u.username) document.getElementById('telegramHandleText').textContent = '@' + u.username;
+        if (u.photo_url) document.getElementById('userAvatarImg').src = u.photo_url;
+      }
+    }
+
+    // ============ STATS ============
+    function updateStats() {
+      let vCount = 0, eCount = 0, fullDays = 0;
+      DAYS.forEach(d => {
+        const p = progress[d.day] || { v: false, e: false };
+        if (p.v) vCount++;
+        if (p.e) eCount++;
+        if (p.v && p.e) fullDays++;
+      });
+      const doneTasks = vCount + eCount, totalTasks = N * 2;
+      const pct = Math.round((doneTasks / totalTasks) * 100);
+      document.getElementById('progressSummaryText').textContent = `${doneTasks} / ${totalTasks}`;
+      document.getElementById('progressPercentageText').textContent = `(${pct}%)`;
+      document.getElementById('topProgressBar').style.width = pct + '%';
+      document.getElementById('fullDaysText').textContent = `${fullDays} يوم كامل من ${N}`;
+      document.getElementById('videosCounter').textContent = `${vCount} / ${N}`;
+      document.getElementById('exercisesCounter').textContent = `${eCount} / ${N}`;
+      updatePhaseCounters();
+    }
+
+    function updatePhaseCounters() {
+      const phases = {};
+      DAYS.forEach(d => {
+        const p = progress[d.day] || {};
+        const ph = phases[d.phaseId] || (phases[d.phaseId] = { total: 0, v: 0, e: 0 });
+        ph.total++;
+        if (p.v) ph.v++;
+        if (p.e) ph.e++;
+      });
+      Object.keys(phases).forEach(id => {
+        const ph = phases[id];
+        [['v', ph.v], ['e', ph.e]].forEach(([k, n]) => {
+          const el = document.getElementById(`ph-${k}-${id}`);
+          if (!el) return;
+          el.textContent = `${n} / ${ph.total}`;
+          el.classList.toggle('complete', n === ph.total);
+        });
+      });
+    }
+
+    // ============ CAT BURST & SPARKLES ============
+    function preloadCatImages() { CAT_IMAGES.forEach(src => { const img = new Image(); img.src = src; }); }
+
+    function spawnCatBurstNextToButton(checkboxEl) {
+      if (!checkboxEl) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const rect = checkboxEl.getBoundingClientRect();
+      const originX = rect.left + rect.width / 2;
+      const originY = rect.top + rect.height / 2;
+
+      const numCats = 6;
+      for (let i = 0; i < numCats; i++) {
+        const img = document.createElement('img');
+        img.className = 'cat-burst-transparent';
+        img.src = CAT_IMAGES[0];
+        img.alt = '';
+        const size = Math.round(30 + Math.random() * 20);
+        img.style.width = size + 'px';
+        img.style.height = size + 'px';
+        img.style.left = originX + 'px';
+        img.style.top = originY + 'px';
+
+        let tx = -Math.abs(Math.random() * 100 + 20);
+        let ty = (Math.random() - 0.5) * 100;
+        if (originY + ty < 60) ty = Math.abs(ty);
+        if (originY + ty > window.innerHeight - 60) ty = -Math.abs(ty);
+
+        img.style.setProperty('--tx', Math.round(tx) + 'px');
+        img.style.setProperty('--ty', Math.round(ty) + 'px');
+        img.style.setProperty('--rot', Math.round((Math.random() - 0.5) * 60) + 'deg');
+        img.style.setProperty('--delay', (Math.random() * 150) + 'ms');
+        img.style.setProperty('--dur', (800 + Math.random() * 400) + 'ms');
+        document.body.appendChild(img);
+        setTimeout(() => { if (img.parentNode) img.parentNode.removeChild(img); }, 2000);
+      }
+
+      const colors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#E91E63', '#9C27B0'];
+      for (let i = 0; i < 20; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle-particle';
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        sparkle.style.backgroundColor = color;
+        sparkle.style.color = color;
+        sparkle.style.left = originX + 'px';
+        sparkle.style.top = originY + 'px';
+
+        let tx = -Math.abs(Math.random() * 120 + 10);
+        let ty = (Math.random() - 0.5) * 120;
+        if (originY + ty < 60) ty = Math.abs(ty);
+        if (originY + ty > window.innerHeight - 60) ty = -Math.abs(ty);
+
+        const size = Math.round(4 + Math.random() * 6);
+        sparkle.style.width = size + 'px';
+        sparkle.style.height = size + 'px';
+        sparkle.style.setProperty('--stx', Math.round(tx) + 'px');
+        sparkle.style.setProperty('--sty', Math.round(ty) + 'px');
+        sparkle.style.setProperty('--sdur', (600 + Math.random() * 600) + 'ms');
+        sparkle.style.setProperty('--sdelay', (Math.random() * 100) + 'ms');
+        document.body.appendChild(sparkle);
+        setTimeout(() => { if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle); }, 1500);
+      }
+    }
+
+    // ============ TOGGLES ============
+    window.toggleVideo = function (dayNum, checkboxEl) {
+      if (!progress[dayNum]) progress[dayNum] = { v: false, e: false };
+      progress[dayNum].v = !progress[dayNum].v;
+      saveProgress();
+      updateSingleDayDOM(dayNum);
+      if (progress[dayNum].v) spawnCatBurstNextToButton(checkboxEl);
+    };
+
+    window.toggleExercise = function (dayNum, checkboxEl) {
+      if (!progress[dayNum]) progress[dayNum] = { v: false, e: false };
+      progress[dayNum].e = !progress[dayNum].e;
+      saveProgress();
+      updateSingleDayDOM(dayNum);
+      if (progress[dayNum].e) spawnCatBurstNextToButton(checkboxEl);
+    };
+
+    function partnerBtnHtml(label, done) {
+      return `<span>${label}</span>${done ? SVG_CHECK : SVG_ARROW_LEFT}`;
+    }
+
+    function updateSingleDayDOM(dayNum) {
+      const p = progress[dayNum] || { v: false, e: false };
+      const vRow = document.getElementById(`v-row-${dayNum}`);
+      const eRow = document.getElementById(`e-row-${dayNum}`);
+      const vBtn = document.getElementById(`v-partner-btn-${dayNum}`);
+      const eBtn = document.getElementById(`e-partner-btn-${dayNum}`);
+
+      if (vRow) vRow.classList.toggle('is-done', !!p.v);
+      if (eRow) eRow.classList.toggle('is-done', !!p.e);
+      if (vBtn) { vBtn.classList.toggle('done', !!p.e); vBtn.innerHTML = partnerBtnHtml('التجميعات', p.e); }
+      if (eBtn) { eBtn.classList.toggle('done', !!p.v); eBtn.innerHTML = partnerBtnHtml('المقاطع', p.v); }
+    }
+
+    window.switchTableToDay = function (targetTab, dayNum) {
+      const winScroll = window.scrollY;
+      setTab(targetTab);
+      if (dayNum) {
+        const rowEl = document.getElementById(targetTab === 'videos' ? `v-row-${dayNum}` : `e-row-${dayNum}`);
+        if (rowEl) {
+          rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          rowEl.classList.add('row-flash');
+          setTimeout(() => rowEl.classList.remove('row-flash'), 1200);
+          return;
+        }
+      }
+      window.scrollTo(0, winScroll);
+    };
+
+    // ============ RENDER ============
+    function reviewChip(text) {
+      return `<li><span class="chip chip-review">مراجعة</span><span>${esc(text.replace(/^مراجعة\s*/, ''))}</span></li>`;
+    }
+
+    function renderVideoItems(list) {
+      return '<ul class="item-list">' + list.map(it => {
+        const m = it.match(/^(فيديو\s*\d+)\s*:\s*(.+)$/);
+        if (m) return `<li><span class="chip">${esc(m[1])}</span><span>${esc(m[2])}</span></li>`;
+        if (/^مراجعة/.test(it)) return reviewChip(it);
+        return `<li class="plain"><span>${esc(it)}</span></li>`;
+      }).join('') + '</ul>';
+    }
+
+    function renderExerciseItems(text) {
+      const parts = (text.includes('•') ? text.split('•') : text.split(' + ')).map(s => s.trim()).filter(Boolean);
+      const multi = parts.length > 1;
+      const rx = /^(ص\s*[\d\s\-–]+?)\s*\((.*)\)\s*$/;
+      return '<ul class="item-list">' + parts.map(p => {
+        const m = p.match(rx);
+        if (m) {
+          return multi
+            ? `<li><span class="chip chip-page">${esc(m[1].trim())}</span><span>${esc(m[2])}</span></li>`
+            : `<li class="plain"><span>${esc(m[2])}</span></li>`;
+        }
+        if (/^مراجعة/.test(p)) return reviewChip(p);
+        return `<li class="plain"><span>${esc(p)}</span></li>`;
+      }).join('') + '</ul>';
+    }
+
+    function renderLegend() {
+      const counts = {};
+      DAYS.forEach(d => { const c = catOf(d.type); counts[c] = (counts[c] || 0) + 1; });
+      document.getElementById('legend').innerHTML = Object.keys(CAT_LABELS).map(c =>
+        `<span class="legend-chip cat-${c}"><i></i>${CAT_LABELS[c]} <span style="opacity:.75">(${counts[c] || 0})</span></span>`
+      ).join('');
+    }
+
+    function renderTables() {
+      const vBody = document.getElementById('videosTableBody');
+      const eBody = document.getElementById('exercisesTableBody');
+      const phaseTotals = {};
+      DAYS.forEach(d => { phaseTotals[d.phaseId] = (phaseTotals[d.phaseId] || 0) + 1; });
+
+      let vHtml = '', eHtml = '', lastPhase = null;
+
+      DAYS.forEach(d => {
+        if (d.phaseId !== lastPhase) {
+          lastPhase = d.phaseId;
+          const head = (k, cols) => `
+            <tr class="bg-stone-100/90 border-y border-stone-200">
+              <td colspan="${cols}" class="py-2.5 px-3 md:px-4 text-[11px] md:text-sm font-bold text-stone-700">
+                <div class="flex items-center justify-between gap-2">
+                  <span>${esc(d.phaseTitle)}</span>
+                  <span class="phase-count" id="ph-${k}-${d.phaseId}">0 / ${phaseTotals[d.phaseId]}</span>
+                </div>
+              </td>
+            </tr>`;
+          vHtml += head('v', 4);
+          eHtml += head('e', 5);
+        }
+
+        const p = progress[d.day] || { v: false, e: false };
+        const cat = catOf(d.type);
+        const dayCell = `
+          <td class="cell-day">
+            <div class="day-num">اليوم ${d.day}</div>
+            <span class="type-badge" title="${esc(d.type)}">${esc(shortType(d.type))}</span>
+          </td>`;
+
+        vHtml += `
+          <tr id="v-row-${d.day}" class="day-row cat-${cat} ${p.v ? 'is-done' : ''}">
+            <td class="cell-check">
+              <label class="check-label">
+                <input type="checkbox" ${p.v ? 'checked' : ''} aria-label="إنجاز مقاطع اليوم ${d.day}" onchange="toggleVideo(${d.day}, this)">
+              </label>
+            </td>
+            ${dayCell}
+            <td class="cell-body">${renderVideoItems(d.videos)}</td>
+            <td class="cell-go">
+              <button id="v-partner-btn-${d.day}" onclick="switchTableToDay('exercises', ${d.day})" class="partner-btn ${p.e ? 'done' : ''}">
+                ${partnerBtnHtml('التجميعات', p.e)}
+              </button>
+            </td>
+          </tr>`;
+
+        eHtml += `
+          <tr id="e-row-${d.day}" class="day-row cat-${cat} ${p.e ? 'is-done' : ''}">
+            <td class="cell-check">
+              <label class="check-label">
+                <input type="checkbox" ${p.e ? 'checked' : ''} aria-label="إنجاز تجميعات اليوم ${d.day}" onchange="toggleExercise(${d.day}, this)">
+              </label>
+            </td>
+            ${dayCell}
+            <td class="cell-pages"><span class="pages-badge">${esc(d.exercisesPages)}</span></td>
+            <td class="cell-body">${renderExerciseItems(d.exercises)}</td>
+            <td class="cell-go">
+              <button id="e-partner-btn-${d.day}" onclick="switchTableToDay('videos', ${d.day})" class="partner-btn ${p.v ? 'done' : ''}">
+                ${partnerBtnHtml('المقاطع', p.v)}
+              </button>
+            </td>
+          </tr>`;
+      });
+
+      vBody.innerHTML = vHtml;
+      eBody.innerHTML = eHtml;
+      updatePhaseCounters();
+    }
+
+    function setTab(mode) {
+      currentTab = mode;
+      const isV = mode === 'videos';
+      document.getElementById('videosTable').hidden = !isV;
+      document.getElementById('exercisesTable').hidden = isV;
+      const bVid = document.getElementById('tabVideosBtn');
+      const bEx = document.getElementById('tabExercisesBtn');
+      bVid.classList.toggle('active', isV);
+      bEx.classList.toggle('active', !isV);
+      bVid.setAttribute('aria-selected', String(isV));
+      bEx.setAttribute('aria-selected', String(!isV));
+    }
+
+    // ============ FILES ============
+    function renderFiles() {
+      document.getElementById('filesGrid').innerHTML = FILES.map((f, i) => {
+        const external = /^https?:/.test(f.file);
+        const meta = external ? esc(f.note || '') : `${esc(f.saveAs)} · <span id="fsize-${i}">${esc(f.size || '')}</span>`;
+        const main = `
+          <a class="file-main" href="${esc(f.file)}" target="_blank" rel="noopener noreferrer"
+             ${external ? 'data-tg="1"' : 'type="application/pdf"'}>
+            <span class="file-ext ${external ? 'tg' : ''}">${external ? 'تيليجرام' : '.' + esc(f.ext)}</span>
+            <span class="overflow-hidden" style="min-width:0">
+              <span class="block text-xs md:text-sm font-bold text-stone-800 truncate">${esc(f.title)}</span>
+              <span class="file-meta block truncate" id="fmeta-${i}">${meta}</span>
+            </span>
+            ${SVG_OPEN}
+          </a>`;
+        const dl = external ? '' :
+          `<a class="file-dl" href="${esc(f.file)}" download="${esc(f.saveAs)}" title="تنزيل ${esc(f.saveAs)}" aria-label="تنزيل ${esc(f.title)}">${SVG_DOWNLOAD}</a>`;
+        return `<div class="file-card" id="fcard-${i}">${main}${dl}</div>`;
+      }).join('');
+
+      // روابط تيليجرام تُفتح داخل التطبيق
+      document.getElementById('filesGrid').addEventListener('click', e => {
+        const a = e.target.closest('a[data-tg]');
+        if (a && tg && typeof tg.openTelegramLink === 'function' && /^https:\/\/t\.me\//.test(a.href)) {
+          e.preventDefault();
+          tg.openTelegramLink(a.href);
+        }
+      });
+    }
+
+    // يتحقق من وجود الملفات فعلياً ويحدّث الحجم (لا يفعل شيئاً عند فتح الصفحة محلياً)
+    function verifyFiles() {
+      FILES.forEach((f, i) => {
+        if (/^https?:/.test(f.file) || !window.fetch) return;
+        fetch(f.file, { method: 'HEAD', cache: 'no-store' }).then(r => {
+          if (r.status === 404) {
+            document.getElementById(`fcard-${i}`).classList.add('broken');
+            document.getElementById(`fmeta-${i}`).textContent = `الملف غير موجود: ${f.file}`;
+          } else if (r.ok) {
+            const len = +r.headers.get('content-length');
+            const el = document.getElementById(`fsize-${i}`);
+            if (len > 0 && el) el.textContent = (len / 1e6).toFixed(1) + ' MB';
+          }
+        }).catch(() => {});
+      });
+    }
+
+    // ============ INIT ============
+    document.addEventListener('DOMContentLoaded', () => {
+      let source = null;
+      try { source = loadLocal(); } catch (e) { storageOk = false; }
+      // اختبار توفر التخزين فعلياً
+      try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); } catch (e) { storageOk = false; }
+
+      initTelegram();
+      preloadCatImages();
+      renderFiles();
+      renderLegend();
+      renderTables();
+      updateStats();
+      bindBackupUI();
+      updateSaveStatus();
+
+      document.getElementById('tabVideosBtn').onclick = () => switchTableToDay('videos');
+      document.getElementById('tabExercisesBtn').onclick = () => switchTableToDay('exercises');
+
+      // استرجاع / ترحيل تلقائي
+      if (source === 'snapshot') {
+        saveProgress();
+        toast('لقينا الحفظ الرئيسي تالفاً، واسترجعنا تقدمك من نسخة احتياطية تلقائية', { ms: 7000 });
+      } else if (source === 'legacy') {
+        saveProgress();
+        toast('نقلنا تقدمك السابق إلى نظام الحفظ الجديد', { ms: 5000 });
+      }
+
+      // طلب حماية التخزين من المسح التلقائي
+      try {
+        if (navigator.storage && navigator.storage.persisted) {
+          navigator.storage.persisted()
+            .then(p => p || (navigator.storage.persist ? navigator.storage.persist() : false))
+            .then(p => { persistState = p ? 'yes' : 'no'; updateSaveStatus(); })
+            .catch(() => {});
+        }
+      } catch (e) {}
+
+      verifyFiles();
+      syncFromCloud();
+    });
+  </script>
+</body>
+</html>
